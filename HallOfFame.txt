@@ -1,5 +1,4 @@
-
-Winners of monthly CTF challenges
+Winners of SecTalkS Challenges
 
 [Challenge 0x00 - 14 Nov 2013]
 Matt James
