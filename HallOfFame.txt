@@ -1,6 +1,6 @@
 
 Winners of monthly CTF challenges
 
-[Challenge 0x00 - Nov 2013]
+[Challenge 0x00 - 14 Nov 2013]
 Matt James
 Nanomebia
