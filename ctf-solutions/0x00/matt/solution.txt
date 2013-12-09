@@ -1,0 +1,40 @@
+I started by finding values to usercode/passcode's - 
+    static Stack<Integer> count = new Stack<Integer>();
+    public static void main(String args[]){
+        compute(1172188274400L, 97);
+    }
+    public static void compute(Long l, int min){
+        if(l==1)
+            System.out.println(count);
+        for(int a = min; a<=122; a++)
+            if(l%a==0){
+                count.push(a);
+                compute(l/a, a);
+                count.pop();
+            }
+    }
+
+Ouput
+[97, 97, 99, 100, 104, 121]
+[97, 97, 99, 104, 110, 110]
+
+And then permuting these to find the matching sequence for the totals. Comes out with the following username and passcodes
+
+users
+adyhac
+daycha
+ahnnac
+annach
+hncaan
+naanch
+
+passes
+vlgoordga
+volgograd
+
+One pair matched the actual credentials. For the session code I translated the decoded base64 string to binary, added an extra byte for the 'n' in admin, and simply added or subtracted to the 'user' bytes to get 'admin' -
+
+e.g. 'e' to 'm' is +8, so '00010001' converted to '00011001'
+
+The resulting bytes were 00000101 00010111 00011001 00000110 00001111 
+I then converted this back to base64 and used it as the token.
