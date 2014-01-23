@@ -1,3 +1,5 @@
+Archive of SecTalks' presentations.
+
 Awesome speakers
 ====================
 1. Fork the repo.
