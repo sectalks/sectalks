@@ -1,4 +1,10 @@
-Winners of SecTalkS Challenges
+Winners of SecTalks Challenges
+
+[Challenge 0x01 - 5 Dec 2013]
+kronicd
+s3my0n
+blinken
+Matt James
 
 [Challenge 0x00 - 14 Nov 2013]
 Matt James
