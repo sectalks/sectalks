@@ -1,0 +1,253 @@
+Solution to Sectalk challenge 0x00
+
+# tl;dr
+
+patrick@ace:~/sec/00 [0]$ time ./zomg.py 1537 393644
+user: 768 strings calculated
+user: 91 cache hits, 439 cache misses, 358 imperfect strings rejected
+pass: 630152 strings calculated
+pass: 6601 cache hits, 193133 cache misses, 128802 imperfect strings rejected
+adyhac ahnnac annach daycha hncaan naanch
+vlgoordga volgograd
+
+real    0m6.955s
+user    0m6.876s
+sys     0m0.060s
+
+# Code
+
+I make no representations as to your sanity after reading this code.
+
+zomg.py - Stage 1: Calculates possible passwords for sum totals provided on the commandline. 
+mods.py - Stage 1: Calculates valid characters for use in zomg.py
+rotate.py - Stage 2: Rough code used to work out what was going on with the encryption scheme in stage 2
+encode.py - Stage 2: Encodes an arbitrary string with the 5-ring substitution cipher used in stage 2
+
+# Breaking the encryption (zomg.py)
+
+This challenge starts by requiring you to break an insecure encryption algorithm implemented
+in Javascript:
+
+- The user is prompted for a username and a password
+- The username is iterated over:
+  - The ordinal value of each character is found and multiplied together to
+    produce a key, we'll call it the user_product
+  - The ordinal values of each character are summed to produce a key, the
+    user_sum - user_sum += ord(username[i])
+- The password is also iterated over to produce a passwd_product and
+  passwd_sum, but for the password_sum the square of the ordinal value is
+  used - user_sum += ord(passwd[i])*ord(passwd[i])
+
+To break the encryption, you must find what username string(s) product the
+provided user_sum and user_product values, and what passwords strings produce
+the provided passwd_sum and passwd_product values. These are:
+
+user_sum = 1537
+user_prod = 1172188274400
+passwd_sum = 393644
+passwd_prod = 1842055687879732800
+
+Considering the _sum values only, this is a problem in dynamic programming: it
+can be expressed recursively as smaller subproblems. A recursive solution in
+pseudocode for the username looks a bit like:
+
+    function find_user(user_sum):
+        if user_sum == 0:
+            return [""]
+
+        output = []
+        for char in "abcdefghijklmnopqrstuvwxyz":
+            output += char + find_user(user_sum - ord(char))
+        
+        return output
+
+and for the password:
+
+    function find_passwd(passwd_sum):
+        if passwd_sum == 0:
+            return [""]
+
+        output = []
+        for char in "abcdefghijklmnopqrstuvwxyz":
+            output += char + find_passwd(passwd_sum - ord(char)*ord(char))
+        
+        return output
+
+These functions have a high complexity - something like O(2^n), more
+computationally expensive than a basic bruteforce technique. However, the
+reason I expressed the problem this way is to make the subproblems overlap: if
+you run find_user, log all the user_sum arguments and count the number of times
+each value appears, you'll see that it's being called multiple times with the
+same value:
+
+  Count user_sum argument to find_user()
+     23 75272
+     23 76832
+     23 78408
+     23 80000
+     23 81608
+     23 83232
+     23 84872
+     23 86528
+     23 88200
+     23 89888
+     ...
+
+So, we can build a cache, storing all the possible strings for a given user_sum
+value. 
+
+    function find_user(user_sum):
+        if user_sum == 0:
+            return [""]
+
+        if cache[user_sum]:
+            return cache[user_sum]
+
+        output = []
+        for char in "abcdefghijklmnopqrstuvwxyz":
+            output += char + find_user(user_sum - ord(char))
+        
+        cache[user_sum] = output
+        return output
+
+Adding this cache speeds things up enormously - because the algorithm only hits
+the bottom of the tree a few times before the higher branches are stored in the
+cache. Later calls for these higher values don't have to explore right down to the
+leaves in order to find a result, they just pull it from the cache and continue.
+
+The complexity of the algorithm with cache is something like O(n^c), a huge
+improvement on 2^n, and the program now finds the user string in < 60 seconds.
+Unfortunately, the tradeoff for decreased computational complexity is a huge
+increase in memory requirements for the cache - computing the password it
+quickly consumed 32GB of RAM before being killed by the OS ;) 
+
+So, we need to optimise further. The way I approached this is by using the
+user_product and passwd_product values: if these are created by multiplying the
+character ordinal values, then the character ordinal values must be factors of
+these numbers. It's easy enough to write a script (mods.py) to compute which
+letters are factors of 1172188274400 and 1842055687879732800, and after a
+couple of seconds we get:
+
+"acdhnuxy" for the username, and
+"adglorvx" for the password
+
+This reduces our alphabet (and so our cache memory requirements) substantially.
+Subbing these into our functions:
+
+    function find_user(user_sum):
+        if user_sum == 0:
+            return [""]
+
+        if cache[user_sum]:
+            return cache[user_sum]
+
+        output = []
+        for char in "acdhnuxy":
+            output += char + find_user(user_sum - ord(char))
+        
+        cache[user_sum] = output
+        return output
+
+...gives us the result in about seven seconds:
+
+patrick@ace:~/sec/00 [0]$ time ./zomg.py 1537 393644
+user: 768 strings calculated
+user: 91 cache hits, 439 cache misses, 358 imperfect strings rejected
+pass: 630152 strings calculated
+pass: 6601 cache hits, 193133 cache misses, 128802 imperfect strings rejected
+adyhac ahnnac annach daycha hncaan naanch
+vlgoordga volgograd
+
+real    0m6.955s
+user    0m6.876s
+sys     0m0.060s
+
+A bit of trial and error reveals the correct combination of username and
+password from the above.
+
+# Stage two (rotate.py)
+
+For the second bit you're given a URL with a mysterious string, which seems to
+control access to the secret area:
+
+    http://some-server/access.php?s=FQEPBRAcExcLHxMABhYSEBMFXUZEWAQAFUQNUwERR18DVUFNXVRdRRFbBAdCRAtWBREWCVEFSkFWHREAER0=
+
+Requesting the page from the server results in a message similar to "You do not
+have permission to access the secret area. You have *user* level access."
+
+From inspection it seems like a fairly good guess that the argument in the URL
+is base64 encoded, and it indeed decodes succesfully to 62 bytes. There's no
+obvious text encoded in the bytes.  So, I proceeded by writing a script that: 
+
+    - produced 62 sequences of 62 bytes, modifying each byte in the string in turn
+    - re-encoded the strings back to 62 base64 URL arguments
+    - called the web application with each of the modified base64-encoded strings
+    - scraped the HTML result for the output string
+
+From this is became clear that the last four bytes - 0x11 0x00 0x11 0x1d -
+affected the text 'user' in the output string: when they were modified the
+letters in 'user' changed. It seemed like a fair guess that if I changed this
+to 'admin' or similar the system would let me though. 
+
+Unfortunately, the last four bytes do not correspond directly to the string
+'user' - there's a cipher being applied between the bytes in the URL and the
+output string. We need to work out how this cipher works in order to pass the
+right bytes in, to make the application display 'admin'.
+
+I trimmed bytes from the end of the string until the application just displayed
+"u". I then generated 40 URLs to sweep that last byte's value from 0 to 40 and
+scraped the HTML output, which gave me the following sequence of characters,
+one character per URL:
+
+    defg`abclmnohijktuvwpqrs-}~ xyz{DEFG@ABC
+
+The - character I use above corresponds to something like a NULL - if you
+request that character you get a blank response from the application. Then I
+fixed the first character, added another byte to the end of the base64 string,
+and swept that 0-40. This produced a different sequence of characters:
+
+    srqpwvut{zyx ~}-cba`gfedkjihonmlSRQPWVUT
+
+I kept adding bytes to the end of the string and sweeping them though the
+range, until eventually the pattern started repeating:
+
+    tuvwpqrs-}~ xyz{defg`abclmnohijkTUVWPQRS
+    onmlkjihgfedcba` ~}-{zyxwvutsrqpONMLKJIM
+    a`cbedgfihkjmlonqpsrutwvyx{z}- ~A@CBEDGF
+    defg`abclmnohijktuvwpqrs-}~ xyz{DEFG@ABC <-- repeat
+
+So it's a substitution cipher with five alphabets: the alphabet used is
+dependent on the position of the byte in the base64 string. 
+
+Now I was able to encode arbitary strings and make the application display
+them: just look up the position of the character you want in the relevant
+alphabet string and that's the byte you need to encode. 
+
+This resulted in encode.py, a script to encode arbitrary strings:
+
+    #!/usr/bin/python
+    import sys
+
+    strings = [
+    "defg`abclmnohijktuvwpqrs-}~ xyz{DEFG@ABC", # Note it's possible these go for more than 40 characters, I stopped 
+    "srqpwvut{zyx ~}-cba`gfedkjihonmlSRQPWVUT", # searching at that point
+    "tuvwpqrs-}~ xyz{defg`abclmnohijkTUVWPQRS",
+    "onmlkjihgfedcba` ~}-{zyxwvutsrqpONMLKJIM",
+    "a`cbedgfihkjmlonqpsrutwvyx{z}- ~A@CBEDGF",
+    ]
+
+    inp = sys.argv[1]
+    for i in range(len(inp)):
+        u = strings[i % 5]
+        print str(u.find(inp[i])) + ", ",
+
+Running it as follows gives:
+
+    patrick@ace:~/sec/00 [0]$ ./encode.py admin
+    5,  23,  25,  6,  15,
+
+which are the bytes to whack on the end of the URL to get "admin". This gets
+you in to the secret area! \o/
+
+    -blinken
+
