@@ -35,8 +35,8 @@ in Javascript:
   - The ordinal values of each character are summed to produce a key, the
     user_sum - user_sum += ord(username[i])
 - The password is also iterated over to produce a passwd_product and
-  passwd_sum, but for the password_sum the square of the ordinal value is
-  used - user_sum += ord(passwd[i])*ord(passwd[i])
+  passwd_sum, but for the passwd_sum the square of the ordinal value is
+  used - passwd_sum += ord(passwd[i])*ord(passwd[i])
 
 To break the encryption, you must find what username string(s) product the
 provided user_sum and user_product values, and what passwords strings produce
