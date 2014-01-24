@@ -1,0 +1,25 @@
+After running the binary in strace to see if it did anything interesting (it
+doesn't), I fired it up in Evan's debugger to see what was happening.
+
+The application displays the initial text then goes into a loop, where it
+increments a register by 1 and compares it to unsigned 32-bit INT_MAX:
+
+rbx = 0
+
+A Compares rbx to 0xffffffffffffffff
+If not equal, jump to B. If equal, continue
+
+B Add 1 to rbx
+Compare rbx to 0xfffffffffffffffe
+If not equal, jump to A. If equal, rbx = 0 and jump to A. 
+
+This will never complete. You have two options:
+- Make use of this software to heat your house
+- Break the program in the loop, 
+  Step forward to the cmp at 00400af0
+  Use the debugger to set rbx to 0xffffffffffffffff 
+
+If you set rbx to the right value, the program continues and pulls together a
+string from locations scattered through memory, presumably to prevent people
+working out the flag using strings. 
+
