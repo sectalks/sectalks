@@ -36,16 +36,16 @@ in Javascript:
     user_sum - user_sum += ord(username[i])
 - The password is also iterated over to produce a passwd_product and
   passwd_sum, but for the passwd_sum the square of the ordinal value is
-  used - passwd_sum += ord(passwd[i])*ord(passwd[i])
+  used - passwd_sum += ord(passwd[i]*ord(passwd[i])
 
-To break the encryption, you must find what username string(s) product the
+To break the encryption, you must find what username string(s) produce the
 provided user_sum and user_product values, and what passwords strings produce
 the provided passwd_sum and passwd_product values. These are:
 
-user_sum = 1537
-user_prod = 1172188274400
-passwd_sum = 393644
-passwd_prod = 1842055687879732800
+    user_sum = 1537
+    user_prod = 1172188274400
+    passwd_sum = 393644
+    passwd_prod = 1842055687879732800
 
 Considering the _sum values only, this is a problem in dynamic programming: it
 can be expressed recursively as smaller subproblems. A recursive solution in
@@ -111,11 +111,12 @@ value.
         return output
 
 Adding this cache speeds things up enormously - because the algorithm only hits
-the bottom of the tree a few times before the higher branches are stored in the
-cache. Later calls for these higher values don't have to explore right down to the
-leaves in order to find a result, they just pull it from the cache and continue.
+the bottom of the tree a few times before the lower branches are stored in the
+cache. Later calls for these lower values don't have to explore right down to
+the very bottom of the tree in order to find a result, they just pull it from
+the cache and continue.
 
-The complexity of the algorithm with cache is something like O(n^c), a huge
+The complexity of the algorithm with cache is something like O(n^c)[1], a huge
 improvement on 2^n, and the program now finds the user string in < 60 seconds.
 Unfortunately, the tradeoff for decreased computational complexity is a huge
 increase in memory requirements for the cache - computing the password it
@@ -202,7 +203,7 @@ one character per URL:
     defg`abclmnohijktuvwpqrs-}~ xyz{DEFG@ABC
 
 The - character I use above corresponds to something like a NULL - if you
-request that character you get a blank response from the application. Then I
+request that character you get a blank response from the application. I then
 fixed the first character, added another byte to the end of the base64 string,
 and swept that 0-40. This produced a different sequence of characters:
 
@@ -250,4 +251,7 @@ which are the bytes to whack on the end of the URL to get "admin". This gets
 you in to the secret area! \o/
 
     -blinken
+
+1. This could be entirely, embarassingly wrong. It's been a long long time since I
+did CS ;)
 
