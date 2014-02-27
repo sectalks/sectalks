@@ -1,0 +1,21 @@
+A game-like application has been uncovered on a NSA server which you think is
+being used to send secret information. Of course, you (and everyone else) wants
+to find out if this is true. The system is located at http://54.84.254.198: see
+what you can find.
+
+There are four flags. No bruteforcing of the server is necessary for this
+challenge; try to keep bandwidth usage to a minimum.
+
+And while it's not part of the challenge, if you manage to pwn the box we'll
+buy you beer (!): write your nick to /home/unpriv/03/gotshell or if you get root
+do the same for /home/unpriv/03/gotroot. Breaking the server for everyone else
+is minus points :)
+
+We'll be answering questions on #sectalks on freenode, though there may be some
+questions we choose not to answer. You probably want to lurk there anyway to
+avoid missing out on hints.
+
+Flags to both matthew.stephen.james@gmail.com and blinken@gmail.com as you find
+them.
+
+- mattsj, blinken
