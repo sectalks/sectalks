@@ -1,0 +1,274 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1024" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>BROWSER Y U SO SLO</title>
+    
+    <meta name="description" content="SecTalks - Feb 2014 - BROWSER Y U SO SLO" />
+    <meta name="author" content="Christian @xntrik Frichot" />
+
+    <link href="asterisk.css" rel="stylesheet" />
+    
+    <link rel="shortcut icon" href="favicon.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+</head>
+
+<body class="impress-not-supported">
+
+<!--
+    For example this fallback message is only visible when there is `impress-not-supported` class on body.
+-->
+<div class="fallback-message">
+    <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+    <p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
+</div>
+
+<div id="impress">
+
+    <div id="title" class="step" data-x="0" data-y="0" data-scale="1">
+        <img class="img01" src="01.jpg" />
+    </div>
+
+    <div id="me" class="step" data-x="800" data-y="-155" data-scale="0.7">
+        <img class="img02" src="02.jpg" />
+        <h1>@xntrik</h1>
+    </div>
+
+    <div id="secoverview" class="step" data-x="800" data-y="200" data-scale="0.7">
+        <h1>Overview</h1>
+        <img class="img03" src="03.png" />
+        <div class="secoverviewtext">1. Browser's in your PT<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;engagements<br />2. JS IS slow<br />3. Distribution<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Techniques</div>
+    </div>
+
+    <div id="clientside" class="step" data-x="83" data-y="660" data-scale="1.3">
+        <div class="cs">
+            <h1>Client-Side Assessments</h1>
+            <div class="pro">
+                Pro:<br />
+                1. Expand attack surface<br />
+                2. Environments are<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;changing<br />
+                3. More realistic
+            </div>
+            <img class="img04" src="04.png" />
+            
+        </div>
+    </div>
+
+    <div id="clientside-2" class="step" data-x="83" data-y="660" data-scale="1.3">
+        <div class="con">
+            Con:<br />
+            1. More difficult<br />
+            2. Clients may not<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;understand<br />
+            3. Social engagements<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;may require social<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-ness
+        </div>
+    </div>
+
+    <div id="vampire" class="step" data-x="1200" data-y="-168" data-scale="0.7">
+        <div class="vp">
+            <img class="img06" src="06.png" />
+            <h1>Once you're in, they're like VAMPIRES</h1>
+            <h1>SOO much you can do in a browser</h1>
+        </div>
+    </div>
+
+    <div id="plug" class="step" data-x="1700" data-y="-168" data-scale="0.7">
+        <div class="plug">
+            <img class="img07" src="07.jpg" /> PLUG!
+        </div>
+    </div>
+
+    <div id="butt" class="step" data-x="1700" data-y="280" data-scale="0.7">
+        <div class="butts">
+            <img class="img08" src="08.gif" /> JS is Slooooooowwwww
+        </div>
+    </div>
+
+    <div id="edge" class="step" data-x="1500" data-y="800" data-scale="1">
+        <div class="edge">
+            <h1>Edge Cases</h1>
+            <ul><li>Password Cracking</li><li>Blind SQLi</li><li>Port Scanning</li></ul>
+        </div>
+    </div>
+
+    <div id="browserlimit" class="step" data-x="1500" data-y="1400">
+        <div class="bl">
+            <h1>Browser Limits</h1>
+            <ul><li>Threads</li><li>Port Banning</li><li>Uncertainty with non-HTTP ports</li></ul>
+        </div>
+    </div>
+
+    <div id="jslimit" class="step" data-x="1500" data-y="2000">
+        <div class="jl">
+            <h1>JS Limits</h1>
+            <p>Particularly related to CPU intensive tasks</p>
+        </div>
+    </div>
+
+    <div id="disttechnique" class="step" data-x="-700" data-y="1600" data-rotate="90">
+        <div class="dt">
+            <h1>Distribution Techniques</h1>
+            <ul><li>Within a browser</li><li>Within MULTIPLE browsers</li></ul>
+            <img src="distributed.gif" class="distributed-anim" />
+        </div>
+    </div>
+
+    <div id="webworker" class="step" data-x="-1300" data-y="2900" data-rotate-x="10" data-z="-4700" data-rotate-y="10" >
+        <pre><code class="language-none">
+/* Web Workerssssss */
+
+var worker = new Worker('worker.js');
+
+worker.addEventListener('message', function(e) {
+  console.log('worker said: ', e.data);
+}, false);
+
+worker.postMessage('YO');
+
+/*---------------worker.js------------*/
+
+self.addEventListener('message',function(e) {
+  self.postMessage(e.data);
+}, false);
+        </code></pre>
+
+    </div>
+
+    <div id="webworkerdemo" class="step" data-x="-1300" data-y="2900" data-rotate-x="100" data-z="-4700" data-rotate-y="10" >
+
+<script type="text/javascript">
+    wwbutt = function() {
+        var worker = new Worker('/worker.js');
+        worker.addEventListener('message', function(e) {
+            console.log('worker said: ', e.data);
+        }, false);
+
+        worker.postMessage('YO');
+    };
+
+</script>
+
+        <button class="ww-butt" onclick="wwbutt();">Boom</button>
+
+ 
+    </div>
+
+    <div id="antisnatchor" class="step" data-x="-1300" data-y="3400" data-rotate-x="10" data-z="-4700" data-rotate-y="10">
+        <img class="anti" src="antisnatchor.png" />
+        @antisnatchor's awesome Ruxcon 2013 presentation on distributed time-based Blind SQLi against SQL Server
+    </div>
+
+    <div id="bsqli01" class="step" data-x="-1300" data-y="4400" data-rotate-x="10" data-z="-4700" data-rotate-y="10">
+        <img class="bsqli01" src="bsqli01.png" />
+    </div>
+
+    <div id="bsqli02" class="step" data-x="-1300" data-y="5300" data-rotate-x="10" data-z="-4700" data-rotate-y="10">
+        <img class="bsqli02" src="bsqli02.png" />
+    </div>
+
+    <div id="proof" class="step" data-x="0" data-y="5300"  data-rotate-x="10" data-z="-4700" data-rotate-y="10">
+        <img class="proofpudd" src="puddinproof.jpg" />
+        <div class="prof">
+        <h1>Results - the proof is in the pudding</h1>
+        <ul><li>5 workers - acquired DB name in 44s</li>
+<li>10 workers - 30s</li>
+<li>sqlmap - 140s</li></ul>
+        </div>
+    </div>
+
+    <div id="distbrowsers" class="step" data-x="0" data-y="2300" data-rotate-x="10" data-z="4700" data-rotate-y="100">
+        <div class="db">
+            <h1>Distributed Portscans</h1><br />
+            <img src="kitty-reaction.png" />            
+            <iframe class="anim" width="450px" src="kitty.gif"></iframe>
+        </div>
+    </div>
+
+    <div id="portscanner" class="step" data-x="0" data-y="3300" data-rotate-x="10" data-z="4700" data-rotate-y="100">
+        <img src="portscanner.png" />
+    </div>
+
+    <div id="startportscan" class="step" data-x="0" data-y="3900" data-rotate-x="10" data-z="4700" data-rotate-y="100">
+        <img src="startportscan.png" />
+    </div>
+
+    <div id="portscanrun" class="step" data-x="-2000" data-y="6500" data-z="-9000">
+        <pre><code><strong>$ ruby ./dist_pscanner.rb</strong>
+[>>>] BeEF Distributed Port Scanner
+[+] Retrieved RESTful API token: 006c1aed13b124d0c1c85a55a55b33f
+[+] Retrieved Hooked Browsers list. Online: 3
+[+] Retrieved 185 available command modules
+
+[+] Online Browsers:
+[1] 127.0.0.1 - C28 Macintosh
+[2] 196.168.1.101 - C28 Windows 7
+[3] 127.0.0.1 - C28 Macintosh
+
+[+] Provide a comma separated list of browsers to use (i.e. 1 or 1,3 etc):
+<strong>1</strong>
+[+] Using:
+[1] 127.0.0.1 - C28 Macintosh
+
+[+] Enter target IP to port scan:
+<strong>192.168.1.254</strong>
+
+[+] Enter target ports to scan (i.e. 1-65535 or 22-80 or 1-1024):
+<strong>70-80</strong>
+
+[+] Split will be as follows:
+[1] 70-80
+
+[+] Ready to proceed? &lt;Enter&gt;
+
+[+] Starting port scan against 192.168.1.254 from 70-80 [1]
+
+[+] Scan queued...
+        </code></pre>
+    </div>
+
+    <div id="portscanrun2" class="step" data-x="-2000" data-y="7000" data-z="-9000">
+        <pre><code>
+[1] port=Scanning: 70,71,72,73,74,75,76,77,78,79,80
+[1] port=WebSocket: Port 80 is OPEN (http)
+[1] Scan Finished in 43995ms
+[+] All Scans Finished!
+Time Taken: 60.248801
+</code></pre>
+    </div>
+
+    <div id="portscanrun3" class="step" data-x="-3000" data-y="7000" data-z="-9000" data-rotate="180">
+        <pre><code>
+[1] port=Scanning: 70,71,72,73
+[2] port=Scanning: 74,75,76,77
+[3] port=Scanning: 78,79,80
+[3] port=CORS: Port 80 is OPEN (http)
+[3] port=WebSocket: Port 80 is OPEN (http)
+[2] Scan Finished in 14800ms
+[3] Scan Finished in 11996ms
+[1] Scan Finished in 15998ms
+[+] All Scans Finished!
+Time Taken: 32.306009
+        </code>
+    </pre>
+    </div>
+
+    <div id="almostthere" class="step" data-x="0" data-y="0" data-scale="1">
+    </div>
+
+    <div id="conclusion" class="step" data-x="0" data-y="0" data-z="-20000">
+        <div class="conc">
+            <h1>Conclusion</h1>
+            <ul><li>Don't despair if things seem to take ages</li><li>Browsers are a moving target</li><li>Capabilities are constantly evolving</li></ul>
+        </div>
+        <img class="star" src="asterisk3.png" />
+    </div>
+
+</div>
+
+<script type="text/javascript" src="js/impress.js"></script>
+<script>impress().init();</script>
+
+</body>
+</html>
