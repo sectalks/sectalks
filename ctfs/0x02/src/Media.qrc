@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/new/prefix1">
+        <file>Header.png</file>
+        <file>output.mp3</file>
+    </qresource>
+</RCC>
