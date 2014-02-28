@@ -1,5 +1,10 @@
 Winners of SecTalks Challenges
 
+[Challenge 0x02 - 27 Feb 2014]
+Matt James
+blinken
+pi3ch
+
 [Challenge 0x01 - 5 Dec 2013]
 kronicd
 s3my0n
