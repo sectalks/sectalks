@@ -1,0 +1,21 @@
+After recovering the information from the NSA's game server, a clever
+hacker went sniffing for more and managed to intercept an email
+originating from the NSA.
+
+Unfortunately it was encrypted, but he took full advantage of the recent
+heartbleed vulnerability and as luck would have it managed to recover the
+key used to encrypt the mail!
+
+It looked like an innocent exchange and the hacker started looking for
+help to discover any hidden information. However, he attracted the NSA's
+attention in doing so and wasn't clever enough to fully hide his tracks.
+
+With the NSA closing in he went dark, but just before doing so he
+uploaded the mail and key. He was certain he had discovered important
+information but had no time to reveal the details.
+
+
+(Note the challenge is intentionally vague about what to do with any
+information you uncover. The hope is that common sense will lead to
+the "right thing" when the crucial information is uncovered, if you
+get stuck email sqweek@gmail.com)
