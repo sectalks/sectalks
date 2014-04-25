@@ -1,6 +1,6 @@
 Winners of SecTalks Challenges
 
-[Challenge 0x03 - 24 Apr 2014]
+[Challenge 0x03 by Matt James & blinken - 24 Apr 2014] 
 |Nick       Flags|
 sqweek      (1,2+pw,3,4)
 phildo      (1,2,3,4)
@@ -9,17 +9,17 @@ nanomebia   (2,3)
 covox/adonm (1)
 swarley     (1)
 
-[Challenge 0x02 - 27 Feb 2014]
+[Challenge 0x02 by kronicd - 27 Feb 2014]
 Matt James
 blinken
 pi3ch
 
-[Challenge 0x01 - 5 Dec 2013]
+[Challenge 0x01 by nanomebia - 5 Dec 2013]
 kronicd
 s3my0n
 blinken
 Matt James
 
-[Challenge 0x00 - 14 Nov 2013]
+[Challenge 0x00 by pi3ch - 14 Nov 2013]
 Matt James
 Nanomebia
