@@ -1,5 +1,14 @@
 Winners of SecTalks Challenges
 
+[Challenge 0x03 - 24 Apr 2014]
+|Nick       Flags|
+sqweek      (1,2+pw,3,4)
+phildo      (1,2,3,4)
+dave_au     (2+pw,3)
+nanomebia   (2,3)
+covox/adonm (1)
+swarley     (1)
+
 [Challenge 0x02 - 27 Feb 2014]
 Matt James
 blinken
