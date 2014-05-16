@@ -1,0 +1,129 @@
+The fourth flag was by far the most complex. The first step involved
+playing the text adventure - eventually you found a radio:
+
+| You pull open the drawer with some effort. There's a radio in
+| here! It seems to be playing some sort of golden hits station.
+| 
+| You can listen to it if you want.
+| 
+|      -> listen radio
+| cipherchange:cipher=NONE:keylen=00xd0xaSDP:0xd0xav=00xd0xao=-0x2000x2000x20IN0x20IP40x20127.0.0.10xd0xas=Helloooooo!0x20I've0x20just0x20got0x20to0x20let0x20you0x20knooooowwww0xd0xac=IN0x20IP40x20127.0.0.10xd0xat=00x2000xd0xaa=tool:l33tencoder0x2053.21.10xd0xam=audio0x2044450x20RAW0x2000xd0xa0xffffffba0xffffffc70xffffffbe0xffffffbc0xffffffbf0xffffffae0xffffffae0xffffffaf0xffffffa20xffffffa20xffffffa40xffffff9d0xffffff9d0xffffffa00xffffff9e0xffffffa10xffffffab0xffffffb0
+
+WOAH ok. Lets break that down a little. Looks like some hex encoding
+going on, 0xd0xa becomes CRLF and 0x20 is space:
+
+| cipherchange:cipher=NONE:keylen=0
+| SDP:
+| v=0
+| o=- 0 0 IN IP4 127.0.0.1
+| s=Helloooooo! I've just got to let you knooooowwww
+| c=IN IP4 127.0.0.1
+| t=0 0
+| a=tool:l33tencoder 53.21.1
+| m=audio 4445 RAW 0
+| 0xffffffba0xffffffc70xffffffbe0xffffffbc0xffffffbf0xffffffae0xffffffae0xffffffaf0xffffffa20xffffffa20xffffffa40xffffff9d0xffffff9d0xffffffa00xffffff9e0xffffffa10xffffffab0xffffffb0
+
+Googling SDP gets you to Session Description Protocol on wikipedia,
+which describes something that looks quite similar. We can discard
+v= o= s= c= t= almost immediately, which just leaves a= and m= to
+check out. Googling "version 53.21.1" gets some hits for
+libavformat which sounds promising but didn't lead to anything
+promising.
+
+So onto the media description, where things get murky. Wikipedia
+doesn't say much about the media description, but some solid
+googling will get you to rfc 3551 which describes rtp payload
+types in section 6. It says this for type 0:
+
+       PT   encoding    media type  clock rate   channels
+            name                    (Hz)
+
+       0    PCMU        A            8,000       1
+
+PCMU is described in the same document as PCM μ-law. The smart way
+to proceed from here was to capture the network packets, as that
+got you directly to the audio stream. The stream could then be
+imported into an audio program supporting PCM μ-law, such as audacity.
+It's a bit of a leap though, as the rfc doesn't mention RAW anywhere.
+
+
+Being a unix head I didn't think of that. I had my stream of ASCII
+characters, so I wrote^Whacked a python script to decode all the
+0xffffffae stuff into a binary audio stream -- see r.py.
+
+It quickly became obvious that the ascii encoding had been thought
+up at 3am. Here's how it works:
+
+1) the input, which I'll call x, is in the range [-128,128)
+2) if x < 0, it is widened to 4 bytes and formatted like "0x%x"
+3) if x is printable ascii, it is written as is
+4) otherwise x is left as a single byte and formatted like "0x%x"
+
+Note that the upper bits of a negative integer are all on, so we
+transmit 10 bytes (0xffffffXX) to communicate 7 bits of information.
+
+It gets better though. Note that the characters '0' and 'x' fall in
+the range of printable ascii. So the encoding is ambiguous when we
+see the sequence "0x". We can easily notice case (2) by looking
+ahead for "0xffffff", but differentiating between (3) and (4) is more
+difficult. I ended up using case (4) for "0x[0-9a-f][0-9a-f]" but
+looking at it now I don't think it's quite correct - the CR LF
+characters were encoded using a single hex character (0xd and 0xa).
+
+
+Anyway, if you read the python script you'll notice it doesn't write
+any binary at all, just some numbers. That was so I could debug it
+easily - I didn't know anything about μ-law encoding when I started
+writing the script, so my objective was just to convert the data into
+something that looked like sinusoidal audio samples.
+
+To convert the python script output to binary I used awk:
+
+$ python r.py radio_data | awk '{printf "%c", $1}' >radio_data.raw
+
+The resulting file I could import into audacity as raw audio - 
+signed 8-bit PCM, single channel, 8000Hz. But it seemed to only be a
+partial recording.
+
+
+So I logged into the game and listened to the radio again, and this
+time got a different section of audio. Figured I was going to have to
+do this a few times, so I created a file containing the input required
+to login to the game and listen to the radio, which I then played back
+to the client (running in wine):
+
+$ { sleep 5; while read line; do echo $line; sleep 2; done <radio_commands; } |
+  wine sectalks3client.exe |
+  tee sess1938
+
+
+The "sleep 5" was to give wine time to start up and the client connect
+(I was doing this on the bus tethered to my mobile so network wasn't
+the fastest). "sleep 2" was to make sure multiple lines get sent in
+seperate packets, as the server barfs if it reads multiple lines in
+a single syscall. 1938 was the time I ran the command - convenient way
+to name the seperate sessions I captured. Once that finished, I
+stripped off the audio data and converted it to binary:
+
+$ s=1938;
+  grep cipherchange:cipher=NONE sess$s |
+  sed 's/0xd0xa/\n/g' |
+  awk 'NR>9' >radio_data$s &&
+  python r.py radio_data$s | awk '{printf "%c", $1}' > $s.raw
+
+
+The resulting raw data was imported into audacity as above. I imported
+each captured session into a seperate track (default behaviour I think)
+which allowed me to drag them left/right to position them correctly. 
+10 sessions later I had the complete recording.
+
+The recording gave me a youtube URL. Fully expecting to be rick-rolled
+I was disappointed to be greeted with "This video is unavailable" D:
+
+I figured I may have heard some of the letters incorrectly (my dodgy
+ascii to binary conversion probably didn't help!), but ultimately
+caved and asked for a hint to figure out which characters I got
+wrong.
+
+
+It was fun. Thanks to mattsj and blinken for organising the challenge!

