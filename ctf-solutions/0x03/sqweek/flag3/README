@@ -1,0 +1,31 @@
+As an admin, you can successfully pick up the folder. Doing so causes
+the client to create a file in your current directory:
+
+| $ ls -al *ppt
+| -rw-r--r--  1 sqweek sqweek   35613 Mar 28 20:08 folder.ppt
+
+
+Standard unix tools make it clear what's going on:
+
+| $ file folder.ppt
+| folder.ppt: Zip archive data, at least v2.0 to extract
+| $ unzip -l folder.ppt
+| Archive:  folder.ppt
+|   Length      Date    Time    Name
+| ---------  ---------- -----   ----
+|        40  2014-02-26 23:04   META-INF/MANIFEST.MF
+|     46664  2014-02-26 23:04   g.class
+| ---------                     -------
+|     46704                     2 files
+
+
+Ok looks like a jar file. I thought about decompiling it to get an idea
+of what it does, but cbf so just ran it (can you tell I'm new to
+wargames?):
+
+| $ java -jar folder.ppt
+| $
+
+
+Nothing happened? Oh, it created another file, flag.png. That's what
+we're looking for.
