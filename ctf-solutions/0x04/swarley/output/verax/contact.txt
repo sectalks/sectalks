@@ -1,0 +1,5 @@
+n: Edward Joseph Snowden
+b: 1983-06-21
+a: unknown
+p: unknown
+e: snowedin@sqweek.net
