@@ -1,0 +1,25 @@
+Foremost version 1.5.7 by Jesse Kornblum, Kris Kendall, and Nick Mikus
+Audit File
+
+Foremost started at Thu May 22 12:52:53 2014
+Invocation: foremost fuckyou.mp4 
+Output directory: /home/adminuser/temp/output
+Configuration file: /etc/foremost.conf
+------------------------------------------------------------------
+File: fuckyou.mp4
+Start: Thu May 22 12:52:53 2014
+Length: 2 MB (2961460 bytes)
+ 
+Num	 Name (bs=512)	       Size	 File Offset	 Comment 
+
+0:	00000000.mp4 	       2 MB 	          0 	 
+1:	00005696.zip 	      43 KB 	    2916594 	 
+Finish: Thu May 22 12:52:53 2014
+
+2 FILES EXTRACTED
+	
+mp4:= 1
+zip:= 1
+------------------------------------------------------------------
+
+Foremost finished at Thu May 22 12:52:53 2014
