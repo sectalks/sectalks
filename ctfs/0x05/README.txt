@@ -5,3 +5,5 @@ Get hacking of course.
 
 After months of amazing NCIS level double hacking you manage to download their super secret client software (attached).
 What do?
+
+EDIT: You will know when you have the flag (it's prefixed with "Flag: ")!
