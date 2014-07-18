@@ -1,5 +1,12 @@
 Winners of SecTalks Challenges
 
+[Challenge 0x05 by swarley and kronicd - 26 June 2014]
+booto
+
+[Challenge 0x04 by sqweek - 22 May 2014]
+kronid
+swarley
+
 [Challenge 0x03 by Matt James & blinken - 24 Apr 2014] 
 |Nick       Flags|
 sqweek      (1,2+pw,3,4)
