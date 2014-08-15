@@ -1,0 +1,20 @@
+Sectalks CTF 0x06 Hints:
+
+Here are a series of hints for places people might be getting stuck.
+I've rot13'd the 'Then' clauses so you don't accidentally see hints you don't want.
+
+If: You don't know how to begin?
+Then: Jnyx gur ova.
+
+If: You have extracted a file with a name beginning with 'h' and ending with 't'.
+Then: Vg unf n yratgu (va olgrf) rirayl qvivfvoyr ol gjragl (v.r. bar uhaqerq naq fvkgl qviqrq ol rvtug). Yngre ba, pnfr vf vzcbegnag.
+
+If: You've seen a second map, but don't know what it means?
+Then: Tbbtyr gur cuenfr ba gur znc naq lbh fubhyq trg n jvxvcrqvn cntr gung urycf.
+
+If: You have a an executable but can't execute it.
+Then: Qbrf svyr(1) bhgchg fbzrguvat harkcrpgrq? Ybbx vagb enqner2 be bowqhzc.
+
+If: You have the file mentioned being used with the torn page, but no idea what to do with it.
+Then: Lbh fubhyq trg fbzr pyhrf ivn qhzcnfa1. Lbh qba'g jnag cnqqvat.
+
