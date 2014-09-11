@@ -1,0 +1,143 @@
+_______  _______  _______  _______  _______  ___      ___   _  _______ 
+|       ||       ||       ||       ||   _   ||   |    |   | | ||       |
+|  _____||    ___||       ||_     _||  |_|  ||   |    |   |_| ||  _____|
+| |_____ |   |___ |       |  |   |  |       ||   |    |      _|| |_____ 
+|_____  ||    ___||      _|  |   |  |       ||   |___ |     |_ |_____  |
+ _____| ||   |___ |     |_   |   |  |   _   ||       ||    _  | _____| |
+|_______||_______||_______|  |___|  |__| |__||_______||___| |_||_______|
+
+==Introduction==
+
+A game-like application has been uncovered on a NSA server which you think is
+being used to send secret information. Of course, you (and everyone else) wants
+to find out if this is true. The system is located at http://54.84.254.198: see
+what you can find.
+
+==The actual README bit==
+
+This is the game server for the CTF challenge described above, developed for
+the Western Australian security group sectalks. 
+
+The challenge was released on 28/02/2014, with hints (below) released on
+27/03/2014 and solutions discussed the following month.
+
+There are four flags:
+ 1. You must first notice some encrypted information leaking from the
+    server, and brute-force this to obtain the key to login.
+ 2. Once in, you discover a MUD-style RPG. Exploring the world, there are some
+    documents you cannot pick up, but "perhaps an admin can do this for you?"
+ 3. You guess that you must login with username admin. To do so, you must use SQL
+	injection. Once you gt the documents, you must analyse the file downloaded by
+	the client to obtain the third flag (an image)
+ 4. Finally, navigating the RPG you find a "radio" which spits an RTP header at
+	you followed by a stream of bytes. From the header, you should deterine the
+	encoding of the stream is G.711 ulaw. Decoding the stream takes you to a
+	youtube URL for the final flag.
+
+Challenges and solutions are available at https://github.com/nanomebia/sectalks.
+
+The game server is written in Python; the client is written in VC++. All the 
+nasty Python bugs in this repository are entirely blinken's fault ;)
+
+ --blinken, mattsj
+  
+==Hints==
+As released to the mailing list:
+
+	From: Patrick Coleman <blinken@gmail.com>
+	Date: Thu, Mar 27, 2014 at 6:38 PM
+	Subject: Challenge 0x03 hints
+	To: sectalks@groupspaces.com
+
+	I presented some hints on how to progress through the challenge at the talk
+	tonight; for the benefit of those who weren't there, here's a summary :)
+
+	There are four flags. Each has a rough theme. While using the client isn't
+	necessary (you can telnet to 54.186.22.247 4445), it'll probably make life
+	easier for you on flags #3 and #4.
+
+	In terms of time - I'd expect #1 and #2 would be pretty achievable even if
+	you're working (and so only get an hour or two a week to work on the
+	challenge). #3 and #4 might require a bit more research and thinking.
+
+	#1 - Crypto
+
+	You're presented with a prompt for the "NSA TeLePrEsEnCe system", which you
+	need to break in to. 
+
+	When you fill in random details you get a message and an error:
+
+	Username: blinken Password: asd cipherchange:cipher=arc4:keylen=6:charset=alpha
+	<garbage>error::
+
+	What the server is trying to tell you here is that the encryption used for
+	communication with the client is changing from none to ARC4, with a key length
+	of six alphabetic characters (lowercase). It's then sending you some characters
+	(you can assume these are english words in printable ASCII) encrypted with the
+	secret key, which are appearing as garbage on the console.
+
+	The encryption key is sufficiently short and simple that you can bruteforce it
+	using the encrypted characters provided and some scripting that guesses keys
+	and checks the output for printable ASCII.
+
+	Note at the NSA it was a recent (classified) policy decision that all passwords
+	are set to the same secret value, which is also used as the secret key. This
+	means you can enter any username you want: enter your handle so we can watch
+	for you in the server logs.
+
+	As far as ARC4 goes, if you're hardcore like matt you can write your own ARC4
+	implementation. Otherwise, you can do what I did and import pycrypto :)
+
+	#2 - Server vulnerabilities
+
+	Once you crack flag #1, you'll be presented with an interactive environment (a
+	game). You can play the game if you want (please do, it was a long night
+	writing it ;), but it's not important to solve flag #2. 
+
+	You're looking for the string "Perhaps an admin can do this for you." when you
+	try to perform a certain action. This is a hint that you need administrative
+	privileges to perform the action (and get the flag).
+
+	Note that when you try to log in as username "admin" the response is different
+	to other usernames - no garbage or cipherchange.
+
+	Username: admin Password: asd error::
+
+	This suggests that the 'admin' username is treated differently. The hint here
+	is that the admin password is stored in a database. 
+
+	Logging in is sufficient to get the flag. If you can work out what the admin
+	password actually is (it should be possible, though not necessary and I haven't
+	tried myself) I'll shout you a beer.
+
+	#3 - File analysis
+
+	Once you log in as admin, try to perform the action again that you were
+	attempting for flag #2. You'll get a file dumped to your computer, plus a magic
+	key which will permit you to progress to flag #4. 
+
+	The file is an obfuscated archive containing an image. Work out the format and
+	make it extract itself, then send us the image.
+
+	#4 - Protocol analysis
+
+	I got all carried away with writing the game server by this point, so you'll
+	need to pick up the magic key found in flag #3 and play the game. There's only
+	really one path anyway.
+
+	You're looking for a radio. Once you find it, the server will stream (key word
+	here is stream) bytes at you. 
+
+	Decode these - the header contains hints as to the format - and follow the
+	instructions contained within.
+
+	--
+
+	General hints: - None of this is particularly hard, though it might be a bit
+	obscure. If you find yourself sending shellcode to the server or fighting with
+	multithreading you're probably overthinking it - Let me know in IRC if you're
+	stuck on something and I'll try and give you a hint; procedural issues aren't
+	the aim of this
+
+	We'll discuss solutions to whichever flags have have been cracked by a few
+	people at the next sectalks.
