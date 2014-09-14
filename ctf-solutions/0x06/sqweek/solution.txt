@@ -1,0 +1,359 @@
+### About this document
+
+This document freely mixes prose with hexdumps and shell commands. Commands
+are prefixed with a "; " prompt for ease of copy-pasting.
+
+One of the weaknesses I find with the unix toolkit is converting a textual
+hexadecimal representation of data into actual bytes (I know of xxd but that
+requires installing vim; fuck that). Fortunately the strength of unix toolkit
+is its easy to add your own tools, so that's what I did. Some of my commands
+expect to find 'hex2bin' in the current directory. Source code is included,
+compile via:
+
+; gcc hex2bin.c -o hex2bin
+
+### Solution
+#### 1. pinboard.bmp
+
+Ok so we're given a bitmap to start with. We could look at the image but
+who needs pixels when you have hexdump:
+
+0087f4b0  ff ff 00 ff ff ff 00 ff  ff ff 00 ff ff fe 00 ff  |................|
+0087f4c0  fe ff 00 fe ff ff 00 ff  ff ff 00 ff ff fe 00 ff  |................|
+0087f4d0  fe ff 00 fe fe fe 00 ff  ff fe 00 ff ff ff 00 ff  |................|
+0087f4e0  ff ff 00 ff ff ff 00 ff  fe fe 00 ff ff fe 00 fe  |................|
+0087f4f0  ff fe 00 fe fe ff 1f 8b  08 08 99 ec aa 53 00 03  |.............S..|
+0087f500  68 61 73 68 62 6c 6f 63  6b 2e 31 36 30 62 69 74  |hashblock.160bit|
+0087f510  00 cb d3 9f 97 28 f8 bc  ee 2e 8f 4b de f2 15 7e  |.....(.....K...~|
+0087f520  aa 46 b6 c2 55 89 db 2f  b8 9e bb b1 42 f2 b4 a5  |.F..U../....B...|
+0087f530  c7 87 23 f1 17 45 8f de  aa 2c 76 2a 15 08 9c bc  |..#..E...,v*....|
+0087f540  ff 2e ef b6 9e eb 3b 3b  ee 2e 9f ee b2 72 d7 2b  |......;;.....r.+|
+
+Looks like some ordinary pixels (and believe me I've seen a lot of pixels
+in my time), followed by some other weird thing starting at offset 0x87f4f6 -
+which is where you'd expect the file to end based on the width/height in the
+BMP header. Lets see if the extra data is a common format:
+
+; dd if=pinboard.bmp of=hashblock skip=8910070 iflag=skip_bytes
+1+1 records in
+1+1 records out
+596 bytes (596 B) copied, 0.000223771 s, 2.7 MB/s
+; file hashblock
+hashblock: gzip compressed data, was "hashblock.160bit", last modified: Wed Jun 25 23:36:57 2014, from Unix
+; <hashblock gunzip >hashblock.160bit
+; rm hashblock
+
+
+#### 2. HASHBLOCK.160BIT
+
+Lovely. Looks like we got 600 random bytes - here's an excerpt:
+
+00000000  6e 2f 9e 61 11 e7 7e dd  0c 44 6e a7 a8 4e 25 32  |n/.a..~..Dn..N%2|
+00000010  3d 13 7a 61 b7 d0 45 ce  d8 a8 19 cb 39 48 f0 c4  |=.za..E.....9H..|
+00000020  5f d1 15 c5 da 79 73 42  75 10 51 93 bf dd 0d b6  |_....ysBu.Q.....|
+00000030  8c d7 b9 88 dd a7 97 44  a9 ba ea 41 58 90 6f 65  |.......D...AX.oe|
+00000040  38 22 3e ba cf 58 93 3a  83 43 17 02 cc a3 e9 79  |8">..X.:.C.....y|
+00000050  55 1c 77 78 9b f6 33 6e  9d 5f 61 65 d0 7c 94 85  |U.wx..3n._ae.|..|
+00000060  61 f7 b8 f8 be e2 06 38  ee f9 7e 5b 56 14 ed 17  |a......8..~[V...|
+00000070  2b 33 72 27 1a f9 f5 d3  be e2 06 38 ee f9 7e 5b  |+3r'.......8..~[|
+00000080  56 14 ed 17 2b 33 72 27  1a f9 f5 d3 d9 b6 a7 bb  |V...+3r'........|
+00000090  30 d6 f5 30 f3 40 1a fa  f5 26 43 d0 86 a2 65 36  |0..0.@...&C...e6|
+000000a0  34 8a 3c 4a 81 ea 60 81  e5 0d d1 88 8d 57 7f da  |4.<J..`......W..|
+000000b0  55 d8 e4 f6 af bd e7 f7  fa 09 cb ce 5e 05 21 8d  |U...........^.!.|
+000000c0  c9 01 d4 93 51 75 81 76  b4 09 81 aa b7 59 32 c5  |....Qu.v.....Y2.|
+000000d0  b2 f5 55 f5 07 69 d8 78  e4 49 13 d7 e1 0a 31 16  |..U..i.x.I....1.|
+000000e0  c7 7b 5b 2e 84 93 18 a9  be 66 9a a2 18 c2 07 26  |.{[......f.....&|
+000000f0  cf 7c 6f 07 4e 4b 75 37  50 67 e4 b2 21 6c 08 8d  |.|o.NKu7Pg..!l..|
+
+If you stare at it long enough you'll notice some repeated sequences.
+"be e2 06 38" shows up at 0x64 and 0x78 - in fact the whole 20 bytes starting
+at 0x64 is repeated. 0x64, 0x78, and 600 are all divisible by 20 so it seems
+feasible that the file consists of items 20 bytes long. Lets see how many
+unique items we have when broken up that way:
+
+; od -vt x1 -Anone -w20 hashblock.160bit |tr -d ' ' |sort |uniq -c |sort -k1,1nr
+      3 348a3c4a81ea6081e50dd1888d577fda55d8e4f6
+      3 bee20638eef97e5b5614ed172b3372271af9f5d3
+      1 244fb75b19415c9ee4f143b34b4b241236fb63f5
+      1 2c26d6e2c55feff46194ffa42008709beff1d481
+      1 53d432122899d4de86c39abe64b1bb3fa4875ed5
+<21 lines snipped>
+
+OK so we have 3 occurences of "bee20638eef97e5b5614ed172b3372271af9f5d3" and
+"348a3c4a81ea6081e50dd1888d577fda55d8e4f6". Searching these strings reveals
+they are SHA1 hashes of "slash" and "dot" respectively. Time to hit the
+reverse hash databases:
+
+6e2f9e6111e77edd0c446ea7a84e25323d137a61	hunter
+b7d045ced8a819cb3948f0c45fd115c5da797342
+75105193bfdd0db68cd7b988dda79744a9baea41	turtle
+58906f6538223ebacf58933a83431702cca3e979	parcel
+551c77789bf6336e9d5f6165d07c948561f7b8f8	colon
+bee20638eef97e5b5614ed172b3372271af9f5d3	slash
+bee20638eef97e5b5614ed172b3372271af9f5d3	slash
+d9b6a7bb30d6f530f3401afaf52643d086a26536	iguana
+348a3c4a81ea6081e50dd1888d577fda55d8e4f6	dot
+afbde7f7fa09cbce5e05218dc901d49351758176
+b40981aab75932c5b2f555f50769d878e44913d7	magic
+e10a3116c77b5b2e849318a9be669aa218c20726	gherkin
+cf7c6f074e4b75375067e4b2216c088da5ae57d3	urchin
+ef7eea16aa4e15baafdcb62e93eb19a432f749cc	radius
+348a3c4a81ea6081e50dd1888d577fda55d8e4f6	dot
+71b21161ffa1e6516bcc072aaf5ef38cbe85b511	company
+a20379308458fcc787bb852f386da510f88e930d	ocelot
+2c26d6e2c55feff46194ffa42008709beff1d481
+bee20638eef97e5b5614ed172b3372271af9f5d3	slash
+ef0ebbb77298e1fbd81f756a4efc35b977c93dae	orange
+c692d6a10598e0a801576fdd4ecf3c37e45bfbc4	bill
+53d432122899d4de86c39abe64b1bb3fa4875ed5	tractor
+7d94bcd89230e0b7091297d0a967f5fe01e65eeb	kangaroo
+244fb75b19415c9ee4f143b34b4b241236fb63f5	universe
+589539e9dc2b6aaf253f051fef5b2b759e2c10a6	mud
+6911adcc6c625bb5c52c5093aa8cdb0545ca63d4	Queen
+348a3c4a81ea6081e50dd1888d577fda55d8e4f6	dot
+8c4a6b36a09cceef20277eb19f83bae01800768e
+6ae999552a0d2dca14d62e2bc8b764d377b1dd6c	name
+db9a022b75625d5624059371d5ef893e5b2458e2	goal
+
+Didn't find a match for all of them but if you take the first letter of each
+you're left with:
+
+h_tp://i._mgur.co_/obtkumQ._ng
+
+Filling in the blanks is left as an exercise for the reader.
+
+
+#### 3. imgur/lol
+
+Visiting the site gives us a new image, featuring some kind of treasure map
+and the words "SAMPLE LENGTH NOTATION". The second hit on google is the
+BMP file format page from Wikipedia, specifically in the section talking
+about BITFIELDS. This section describes how the BMP header encodes the pixel
+format. So, back to pinboard.bmp:
+
+00000000  42 4d f6 f4 87 00 00 00  00 00 46 00 00 00 38 00  |BM........F...8.|
+00000010  00 00 dc 05 00 00 cd 05  00 00 01 00 20 00 03 00  |............ ...|
+00000020  00 00 b0 f4 87 00 13 0b  00 00 13 0b 00 00 00 00  |................|
+00000030  00 00 00 00 00 00 00 00  00 ff 00 00 ff 00 00 ff  |................|
+00000040  00 00 00 00 00 00 7f fe  fe fe 45 fe ff fe 4c fe  |..........E...L.|
+00000050  ff ff 46 fe ff fe 01 fe  fe ff 01 fe fe ff 01 fe  |..F.............|
+00000060  fe ff 00 fe ff ff 00 ff  ff ff 00 fe ff ff 00 ff  |................|
+00000070  fe ff 00 fe ff ff 00 ff  ff ff 00 ff fe ff 00 fe  |................|
+00000080  ff ff 00 fe fe fe 02 fe  fe ff 00 ff ff ff 28 ff  |..............(.|
+
+  14-byte bitmap header
+0x00: 2-bytes magic: "BM" 
+0x02: 4-bytes file length: 0x87f4f6 = 8910070
+0x06: 2-bytes reserved
+0x08: 2-bytes reserved
+0x0a: 4-bytes pixel data file offset: 0x46
+
+  DIB header
+0x0e: 4-bytes DIB header length: 0x38 = 56  => BITMAPV3INFOHEADER
+0x12: 4-bytes image width: 0x5dc = 1500
+0x16: 4-bytes image height: 0x5cd = 1485
+0x18: 2-bytes # of colour planes: 0x01
+0x1a: 2-bytes bits-per-pixel: 0x20 = 32
+0x1c: 4-bytes compression method: 0x03 = BI_BITFIELDS
+0x22: 4-bytes image size: 0x87f4b0 = 8910000 bytes
+0x26: 4-bytes horizontal resolution: 0xb13 = 2835 pixels/metre
+0x2a: 4-bytes vertical resolution: 0xb13 = 2835 pixels/metre
+0x2e: 4-bytes # of colours in palette: 0
+0x32: 4-bytes # of "important" colours: 0
+0x36: 4-bytes red-channel bitmask:   0x000000ff
+0x3a: 4-bytes green-channel bitmask: 0x0000ff00
+0x3e: 4-bytes blue-channel bitmask:  0x00ff0000
+0x42: 4-bytes alpha-channel bitmask: 0x00000000
+
+The key items to note are we have 4 bytes-per-pixel (see 0x1a) but the
+combined bitmask for all the channels only covers three bytes. It certainly
+looks like there is data in the first byte of each pixel, so lets pull it out.
+
+; dd if=pinboard.bmp bs=10000 count=891 skip=70 iflag=skip_bytes |od -v -Anone -w4 -t x1 |awk '{print $1}' |./hex2bin >pixels.dat
+891+0 records in
+891+0 records out
+8910000 bytes (8.9 MB) copied, 4.41364 s, 2.0 MB/s
+; file pixels.dat
+pixels.dat: ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.26, BuildID[sha1]=7014b8b9336c9b023a19a383c763c3c6fc285b87, stripped
+
+
+#### 4. ARM
+
+Huzzah! I don't have an ARM machine but stackoverflow tells me qemu can do
+the job. It doesn't provide an ARM libc, so I extracted one from a debian
+package:
+
+; mkdir -p /tmp/arm
+; cd /tmp/arm
+; wget http://ftp.au.debian.org/debian/pool/main/g/glibc/libc6_2.19-9_armhf.deb
+; ar x libc6_2.19-9_armhf.deb data.tar.gz
+; tar xf data.tar.gz
+; cd -
+; chmod +x pixels.dat
+; qemu-arm -L /tmp/arm ./pixels.dat >pixels.out
+; hexdump -Cv pixels.out
+00000000  9c c0 cc 51 26 2c 80 b6  d0 43 10 24 17 2f ea c5  |...Q&,...C.$./..|
+00000010  9d 83 fc 83 8c be 4d fa  a7 46 c6 07 5f 1c 30 d5  |......M..F.._.0.|
+00000020  27 f0 28 74 46 ec e9 89  22 c8 1b 12 f0 32 7b 77  |'.(tF..."....2{w|
+00000030  e7 26 2d 08 7e 11 d6 b6  6c d4 b0 12 8e 8d 01 f5  |.&-.~...l.......|
+00000040  b2 b5 e5 d5 44 9a f2 8f  90 a9 07 10 d2 78 1b a5  |....D........x..|
+00000050  af 3d 02 7e d1 a4 28 e6  f7 cb 78 30 1b 8b 59 ae  |.=.~..(...x0..Y.|
+00000060  a3 60 f0 97 1d 9a 0a db  9b 7d 16 46 00 47 97 a1  |.`.......}.F.G..|
+00000070  a2 9c b9 67 94 1e dd d4  66 ad c3 99 a5 fb ee 80  |...g....f.......|
+00000080  ed ce 20 5d 96 b5 ff f8  52 ab 5e c1 0e 8c 41 fb  |.. ]....R.^...A.|
+00000090  e6 02 18 91 67 5b 9d 54  08 b4 b9 96 02 28 f9 04  |....g[.T.....(..|
+000000a0  04 e1 78 ee 2a a7 ee b9  60 9c f4 0f a9 91 f3 80  |..x.*...`.......|
+000000b0  fd ab 04 87 14 6d 04 5c  19 fc 6d 56 2d fb 20 3f  |.....m.\..mV-. ?|
+000000c0  f5 de 09 75 0e aa 31 63  bc 4d 92 eb 07 e8 a8 58  |...u..1c.M.....X|
+000000d0  80 e7 93 37 a0 a4 d5 d9  05 a7 25 dd 8a c6 a8 4e  |...7......%....N|
+000000e0  2d 24 98 b0 21 19 93 13  3d 19 96 14 d0 fc 30 42  |-$..!...=.....0B|
+000000f0  25 67 82 c3 26 68 6a 46  23 e9 44 d5 5b 9e 6e 7f  |%g..&hjF#.D.[.n.|
+00000100
+; sha1sum pixels.out 
+5f377e06a4ff1465cf65765cb37107d64d4dc125  pixels.out
+
+Hooray more random bytes! But that sha1 looks familiar - it's the one
+referenced in the original pinboard (yeah ok I did look at the pixels):
+
+ "been told this is useful for 5F377E06...  filehash, _not_ contents"
+
+
+#### 5. Fragments
+
+The only remaining lead is the ripped document fragment in the original
+image. I was stumped on this for ages, until booto's clue revealed it was
+ASN.1 encoded data. So you go download dumpasn1.c from some dude's website[1]
+which reveals the data's structure (first I pad the missing bytes from the
+document with zeros and convert from text to binary).
+
+[1] https://www.cs.auckland.ac.nz/~pgut001/dumpasn1.c
+
+; awk 'NR>=3 {while(length($0) < 95) {$0 = $0 " "}; print}' document_fragment |sed 's/.. /&\n/g' |awk '/^ *$/ {print "00"; next} {print}' |./hex2bin >doc.bin
+; ./dumpasn1 doc.bin
+   0 1186: SEQUENCE {
+   4    1:   INTEGER 0
+   7  257:   INTEGER
+         :     00 A4 F3 86 57 CE DE 11 0D 46 DB 3A 07 58 D2 C3
+         :     93 B5 EE 99 9D 6A 54 4B 64 2B 6A 83 6E C8 27 19
+         :     2B 56 90 90 83 FF FF C9 D9 FA 2D C8 24 2E 2F AA
+         :     6A D0 21 AC B4 C7 29 47 7F A2 DE 04 36 B6 35 B2
+         :     50 26 76 19 64 F8 CB 76 F0 6F 23 1E ED 5A CB 86
+         :     13 07 68 CE F7 65 EC 06 96 E4 5D E7 7D E6 EC CA
+         :     20 CB 6E C6 FA AF 9D 40 C4 6B C8 92 53 2C E4 40
+         :     05 24 1D 59 9D E3 63 AE 79 4E 2C 56 C5 4C 6B 6D
+         :             [ Another 129 bytes skipped ]
+ 268    3:   INTEGER 65537
+ 273  256:   INTEGER
+         :     6B 5B 4C 0E 8E 47 1D D6 04 4D DE A0 B5 80 C7 65
+         :     B5 BD 4B 21 96 F8 B1 F0 CA 09 12 ED E1 3B 01 38
+         :     A1 A8 89 46 40 31 9C 90 50 31 C7 D7 34 70 35 7C
+         :     3B 66 0F 5F C1 57 EE 7E F5 E3 85 DE 8E 0C B8 B7
+         :     4D B1 03 AA 21 FB 5A B7 F5 BD 67 FD 97 60 6B 2C
+         :     AB 5F DD 84 4B 43 A8 AE 40 87 95 88 ED E9 23 4C
+         :     E0 DA 82 8A DA 0D 80 FF D6 1E BE 8D 7F E4 36 7E
+         :     A2 18 B0 21 00 C3 F9 E4 5D AA A1 F6 DB 5B F7 A4
+         :             [ Another 128 bytes skipped ]
+         :     Error: Spurious EOC in definite-length item.
+
+What we have is a one byte integer (0) followed by a 257 byte integer
+(00 A4 F3 ...), a 3 byte integer (65537), and a 256 byte integer
+(6B 5B 4C ...). Then dumpasn1 hits one of the missing bytes and gives
+up. All in all this tells us approximately jack-shit. Maybe we're missing
+some wider context. Where else is ASN.1 commonly used?
+
+The most famous use is for X.509 certificates. Indeed, all that stuff
+in PEM files turns out to be ASN.1 run through base64. If you back off the
+base64 and run a certificate through dumpasn1, there's one section that
+slightly resembles the structure of our mystery document - the public key
+section.
+
+Turns out we have one better though. 65537 is a very particular number, a
+little hunting reveals that it's a common public exponent used for RSA keys.
+Run dumpasn1 on an RSA private key and you'll find the very same structure
+that we have here!
+
+Ours of course isn't complete. Assessing the damage, we have these fields
+intact:
+
+ * Algorithm version (0)
+ * Modulus (the 257 byte INTEGER)
+ * Public Exponent (65537)
+ * Private Exponent (the 256 byte INTEGER)
+
+And we're missing:
+
+ * Prime 1
+ * Prime 2
+ * Exponent 1
+ * Exponent 2
+ * Coefficient
+
+Reference: http://etherhack.co.uk/asymmetric/docs/rsa_key_breakdown.html
+
+
+My understanding of RSA suggests that the missing values are used in
+deriving the public/private keys, but the keys themselves are wholly
+defined by the modulus + public/private exponent.
+
+Of course, openssl has a whinge if those fields aren't present, so we
+need to put _something_ in them. I just copy/pasted the extra fields from
+the example RSA key on the above website, appended them to doc.bin after
+the Private Exponent, and adjusted the length of the ASN.1 SEQUENCE to
+match the resulting file size. That was enough to get openssl to accept
+the key, which I then used to decrypt the output from the ARM binary and
+reveal the flag:
+
+; ./hex2bin <extra.hex |dd of=doc.bin oflag=seek_bytes seek=533
+; echo 03 5f |./hex2bin |dd of=doc.bin conv=notrunc bs=1 count=2 seek=2
+; openssl rsautl -raw -decrypt -inkey doc.bin -keyform DER -in pixels.out
+
+But I won't spoil the ending :P
+
+Thanks to booto for organising the fiendish challenge!
+
+
+### EASTER EGGS
+
+I spent a lot of time looking at the ARM binary looking for hidden info.
+Turns out there was none, but I did learn that you can attach gdb (from an
+ARM toolchain) to a process running under qemu-arm and inspect the state
+of the emulated ARM processor. Pretty neat.
+
+Turns out the binary just XORs 256 bytes from the .data section with the
+repeated string "That rug really tied the room together.". I learned this
+by accidently truncating the binary when attempting to replace the .data
+section with a different chunk (left conv=notrunc out of my dd command).
+Surprisingly the binary still ran fine, but with nothing actually in the
+.data section the memory was initialised to zero and XOR revealed the "key".
+
+Sidenote: Dudeism is now an officially recognised religion.
+
+
+The other thing I checked out thoroughly was the PNG file hosted on imgur.
+No hidden information, but I recommend reading the PNG spec at some point;
+a lot of thought went into the first 8 or so bytes ;)
+
+
+I found answers for each of the "clues" on the pinboard:
+
+  X marks the spot
+    -> Armenia
+
+  "No. 252" in Canada
+    -> Rural Municipality "Arm River No. 252"
+
+  Eta of the sea-goat (01110011 01110100 01100001 01110010 = star)
+    -> "Armus" (star in Capricorn constellation)
+
+  Diamond shaped logo
+    -> Arm's faction logo from Total Annihilation
+
+  Origin? in Spain
+    -> ???? (maybe a reference to the flag content?)
+
+Arms everywhere! Goro would be proud, but they don't seem to be particularly
+relevant to the rest of the challenge.
+
+
+SEQUENCE BREAK: If you analyse the BMP header upfront you can extract the
+ARM binary immediately and skip the reverse hash level.
