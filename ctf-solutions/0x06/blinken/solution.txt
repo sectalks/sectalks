@@ -2,21 +2,29 @@ CTF 0x06 solution
 In which blinken explores several dead-ends, is extremely lucky, and uses xxd _extensively_. Also, sed
 
 =The problem=
-This CTF consists of one image, a BMP. I opened it up in Windows Image Viewer, the first (and only) choice for image viewing. There's a lot of information here; we get:
+This CTF consists of one image, a BMP. I opened it up in Windows Image Viewer,
+the first (and only) choice for image viewing. There's a lot of information
+here; we get:
 
  * a map - awesome! I love maps. 
  * some scribble on the map
  * some stuff about a sea-goat
  * four numbers in binary
- * a fragment of hex with a note saying that the hex is useful for a file with hash 5f377e06...
+ * a fragment of hex with a note saying that the hex is useful for a file with
+   hash 5f377e06...
 
 Some other thoughts:
  * it's an image CTF, so I'm thinking steganography
- * it's a BMP image, so I'm double thinking steganography: you have to go out of your way to make a BMP in 2014 (even MS Paint defaults to PNG these days), so it's been saved as a BMP for a reason. The BMP file format is easy to understand, and you can hide sneaky bytes in the pixel values without too much trouble.
+ * it's a BMP image, so I'm double thinking steganography: you have to go out
+   of your way to make a BMP in 2014 (even MS Paint defaults to PNG these
+   days), so it's been saved as a BMP for a reason. The BMP file format is easy
+   to understand, and you can hide sneaky bytes in the pixel values without too
+   much trouble.
  
  
 =Always start with strings=
-So. There's a lot of places we could start here. I chose to start with strings: always start with strings.
+So. There's a lot of places we could start here. I chose to start with strings:
+always start with strings.
 
 patrick@ace:~/sectalks/ctfs/0x06 [0]$ strings pinboard.bmp
 hashblock.160bit
@@ -24,25 +32,38 @@ hashblock.160bit
 Yg<X
 patrick@ace:~/sectalks/ctfs/0x06 [0]$
 
-Aha! Hidden things. A quick Google revealed that a common 160-bit hash is SHA1 (I probably shouldn't have to Google that, but whatevs). 
+Aha! Hidden things. A quick Google revealed that a common 160-bit hash is SHA1
+(I probably shouldn't have to Google that, but whatevs). 
 
-Opening pinboard.bmp in vim, we can feed it through the included hex conversion tool with %!xxd. Searching for 'hashblock.160bit' we then pull out 160 bits starting at 0x087f510:
+Opening pinboard.bmp in vim, we can feed it through the included hex conversion
+tool with %!xxd. Searching for 'hashblock.160bit' we then pull out 160 bits
+starting at 0x087f510:
 
 087f500: 6861 7368 626c 6f63 6b2e 3136 3062 6974  hashblock.160bit
 087f510: 00cb d39f 9728 f8bc ee2e 8f4b def2 157e  .....(.....K...~
 087f520: aa46 b6c2
 
-Which gives us a hex hash of 00cbd39f9728f8bcee2e8f4bdef2157eaa46b6c2. Passing this through Google, as well as various online hash tables (including VirusTotal, because that would be an awesome CTF idea, I'm just saying) didn't bring up any matches. Hmm. I set it aside and explored further.
+Which gives us a hex hash of 00cbd39f9728f8bcee2e8f4bdef2157eaa46b6c2. Passing
+this through Google, as well as various online hash tables (including
+VirusTotal, because that would be an awesome CTF idea, I'm just saying) didn't
+bring up any matches. Hmm. I set it aside and explored further.
 
-[Note: this is a little easter egg (hint?) I completely missed; sqweek has a nice and much more comprehensive writeup at [1]].
+[Note: this is a little easter egg (hint?) I completely missed; sqweek has a
+nice and much more comprehensive writeup at [1]].
 
 
 =Certificates wooooo=
-Moving on to the huge slab of hex. Now, courtesy of large and painful chunks of my life spent debugging Kerberos I happen to know that all ASN1-packed certificates start with 0x3082 (or MII in base64). And this chunk of hex?
+Moving on to the huge slab of hex. Now, courtesy of large and painful chunks of
+my life spent debugging Kerberos I happen to know that all ASN1-packed
+certificates start with 0x3082 (or MII in base64). And this chunk of hex?
 
 30 82 04 a2 02 01 00 02 82 01 01 00 a4 ...
 
-Well, would you look at that. Assuming`that this isn't a coincidence, the next two bytes give the length of the rest of the certificate - in this case 0x04a2 is 1186 bytes. That's certainly plausible-certificate-length. Opening up the document_fragment file in vim, with the help of a few macros we can get it into a format like below, padded out to 1186 bytes with zeros:
+Well, would you look at that. Assuming`that this isn't a coincidence, the next
+two bytes give the length of the rest of the certificate - in this case 0x04a2
+is 1186 bytes. That's certainly plausible-certificate-length. Opening up the
+document_fragment file in vim, with the help of a few macros we can get it into
+a format like below, padded out to 1186 bytes with zeros:
 
 308204a20201000282010100a4f38657cede110d46db3a0758d2c393b5ee999d
 6a544b642b6a836ec827192b56909083ffffc9d9fa2dc8242e2faa6ad021acb4
@@ -54,7 +75,11 @@ c729477fa2de0436b635b25026761964f8cb76f06f231eed5acb86130768cef7
 
 ...and we can feed this into OpenSSL to see what we get:
 
-[quick note on PEM and DER - PEM is the text encoding for certificates you tend to see a lot: the human-readable BEGIN CERTIFICATE header followed by lots of base64. DER is exactly the same data but just raw bytes. So, we can take the hex from our document fragment, convert it to bytes, then tell OpenSSL it's DER format and everything is happy]
+[quick note on PEM and DER - PEM is the text encoding for certificates you tend
+to see a lot: the human-readable BEGIN CERTIFICATE header followed by lots of
+base64. DER is exactly the same data but just raw bytes. So, we can take the
+hex from our document fragment, convert it to bytes, then tell OpenSSL it's DER
+format and everything is happy]
 
 patrick@ace:~/sectalks/ctfs/0x06 [130]$ tail -n38 document_fragment_edited | xxd -r -p | openssl asn1parse -inform der -dump
     0:d=0  hl=4 l=1186 cons: SEQUENCE
@@ -86,9 +111,17 @@ Error in encoding
 140600467375808:error:0D07207B:asn1 encoding routines:ASN1_get_object:header too long:asn1_lib.c:150:
 patrick@ace:~/sectalks/ctfs/0x06 [1]$
 
-Awesome! We have ASN1, and what appears to be private and public key exponent/modulus pairs. Unfortunately the rest of the certificate is missing (I forget what is usually here... various magical cryptographic numbers or something? I'm sure they're very important) and so OpenSSL bombs out. I've asked it to dump data it's not sure about as hex and ASCII, but there's not much interesting there. 
+Awesome! We have ASN1, and what appears to be private and public key
+exponent/modulus pairs. Unfortunately the rest of the certificate is missing (I
+forget what is usually here... various magical cryptographic numbers or
+something? I'm sure they're very important) and so OpenSSL bombs out. I've
+asked it to dump data it's not sure about as hex and ASCII, but there's not
+much interesting there. 
 
-I searched around a bit to try and find the best way to reassemble a certificate given the public and private keys in hex, but in the end it seems the simplest way is to just generate a new certificate and graft in the modulii above. 2048 bit because the keys above are 256 bytes long:
+I searched around a bit to try and find the best way to reassemble a
+certificate given the public and private keys in hex, but in the end it seems
+the simplest way is to just generate a new certificate and graft in the modulii
+above. 2048 bit because the keys above are 256 bytes long:
 
 patrick@ace:~/sectalks/ctfs/0x06 [0]$ openssl genrsa -out newkey.pem 2048
 [genrsa guff here]
@@ -96,7 +129,8 @@ patrick@ace:~/sectalks/ctfs/0x06 [0]$ openssl rsa -in newkey.pem -inform pem -ou
 patrick@ace:~/sectalks/ctfs/0x06 [0]$ xxd -p newkey.der > newkey.hex
 patrick@ace:~/sectalks/ctfs/0x06 [0]$ cp newkey.hex patchedkey.hex
 
-Feed the freshly-generated certificate through asn1parse to find out the values we need to replace:
+Feed the freshly-generated certificate through asn1parse to find out the values
+we need to replace:
 
 patrick@ace:~/sectalks/ctfs/0x06 [0]$ openssl asn1parse < newkey.pem
     0:d=0  hl=4 l=1188 cons: SEQUENCE
@@ -106,7 +140,11 @@ patrick@ace:~/sectalks/ctfs/0x06 [0]$ openssl asn1parse < newkey.pem
   273:d=1  hl=4 l= 257 prim: INTEGER           :82DC42AEC9BE536AA2CE6F29B7EE6E4CED54452C8C2EC7F4B80C163806BC4AA7070A59EF00705FFE55D48E5CD5B1CBC8CA54F963BB8A7C9C8D81AECFD9BA2818B1D2929E004EC6A2271B84EBBE553D01BF68AAECFB33AF37F42C812EBF47C4A26DFA8A9C381B5203BB6201B91673AC741061B6D4B05BAB21DA693A14004E81A01AFFDA4F12B1FBD1B34326EBFCA720ECC98BD52E34D7DF7C3B9132E49C7D9C9AB67690605BD4467E01B193A223F9A51652AC5041660482DEB865FA3D97A3590C2915D9D5262FFBDEFF2F4F74511EE1E5F34437DFE460D000B61B694CE38C99D3FD827F7AF4355E6388AD579C0E8E8EFBA4BA9E2A2079E2C888552638D3764BB9
   534:d=1  hl=3 l= 129 prim: INTEGER           :FF1B8965C92B....[crypto numbers we don't care about here]
  
-So, taking the freshly-generated certificate, we want to replace the bytes DE2C...CAF3 with the bytes A4F3...BEB5 from the document fragment, and 82DC...4BB9 with 6B5B...75C1. vim search-and-replace on patchedkey.hex makes short work of this, and now we can confirm OpenSSL is happy with our Frankenstein-certificate:
+So, taking the freshly-generated certificate, we want to replace the bytes
+DE2C...CAF3 with the bytes A4F3...BEB5 from the document fragment, and
+82DC...4BB9 with 6B5B...75C1. vim search-and-replace on patchedkey.hex makes
+short work of this, and now we can confirm OpenSSL is happy with our
+Frankenstein-certificate:
 
 patrick@ace:~/sectalks/ctfs/0x06 [0]$ xxd -r -p patchedkey.hex > patchedkey.der
 patrick@ace:~/sectalks/ctfs/0x06 [0]$ openssl asn1parse -inform der < patchedkey.der
@@ -122,22 +160,30 @@ patrick@ace:~/sectalks/ctfs/0x06 [0]$ openssl asn1parse -inform der < patchedkey
  1060:d=1  hl=3 l= 129 prim: INTEGER           :BE0DB28EDC2A0F8553B6E3205E5C29A3C4A82D296B33ACDC84292906EFD5493A3A4BD819BF3212A1890B37AE9A78CC03FD293BB978B31CCEEE4172E7636D19566F2CC15F6F87CC9DB8647AAA13437E6348D451DD9729D43AF0309DB524C7CB62601E5A8E6170764AE3711C72DF5C50E8006840DD3ABA052FFA33FA21870FEB10
 patrick@ace:~/sectalks/ctfs/0x06 [0]$
 
-There's our keys from the document fragment sitting in a complete certificate. Sweet.
+There's our keys from the document fragment sitting in a complete certificate.
+Sweet.
 
-Now, what to use it on? The only thing I felt I hadn't explored properly at this point was the blob of binary data in pinboard.bmp, from the end of the 160-bit SHA1 hash to the end of the file. I tried decrypting this but no dice:
+Now, what to use it on? The only thing I felt I hadn't explored properly at
+this point was the blob of binary data in pinboard.bmp, from the end of the
+160-bit SHA1 hash to the end of the file. I tried decrypting this but no dice:
 
 patrick@ace:~/sectalks/ctfs/0x06 [0]$ openssl rsautl -decrypt -inkey patchedkey.der -keyform der < cryptblob
 RSA operation error
 139803322123968:error:0406506C:rsa routines:RSA_EAY_PRIVATE_DECRYPT:data greater than mod len:rsa_eay.c:523:
 patrick@ace:~/sectalks/ctfs/0x06 [1]$
 
-RSA only lets you encrypt small amounts of data, which is why it's generally used in a protocol to exchange a session key for a symmetric cipher, which then encrypts everything else. Here, OpenSSL is telling us to go away because we want to decrypt more data than our 2048-bit key supports.
+RSA only lets you encrypt small amounts of data, which is why it's generally
+used in a protocol to exchange a session key for a symmetric cipher, which then
+encrypts everything else. Here, OpenSSL is telling us to go away because we
+want to decrypt more data than our 2048-bit key supports.
 
-Truncating the cryptoblob file didn't help either, so I put it aside and moved on. See sqweek's solution at [1] for an analysis of what this binary blob is.
+Truncating the cryptoblob file didn't help either, so I put it aside and moved
+on. See sqweek's solution at [1] for an analysis of what this binary blob is.
 
 
 =Four magic numbers=
-[note, the first half of this section is complete rubbish, but included really just to point out how lucky I was ;) See [4]]
+[note, the first half of this section is complete rubbish, but included really
+just to point out how lucky I was ;) See [4]]
 
 Turning to the binary scribbled in marker, we're given four numbers:
 
@@ -153,13 +199,20 @@ Padding these to the same length reveals they all fit exactly in eight bits:
 11000010 0xc2 194
 01110010 0x72 114
 
-Four eight-bit numbers? My immediate thought was an IP address. If the address is given in network mode[2], then we get 230.29.194.114, otherwise we get 114.194.29.230. 
+Four eight-bit numbers? My immediate thought was an IP address. If the address
+is given in network mode[2], then we get 230.29.194.114, otherwise we get
+114.194.29.230. 
 
 Neither of these addresses resolved to anything useful. Hmm.
 
-So, another option is to interpret these four bytes as two 16-bit numbers. The post-it note on the pinboard references a "file hash", which suggests at some point we need to find or generate another file to use our keys to decrypt - the hash of pinboard.bmp itself doesn't match[3]. 
+So, another option is to interpret these four bytes as two 16-bit numbers. The
+post-it note on the pinboard references a "file hash", which suggests at some
+point we need to find or generate another file to use our keys to decrypt - the
+hash of pinboard.bmp itself doesn't match[3]. 
 
-Given this, two numbers would work as file offsets (however, see [4]) - perhaps we can pull a fragment of data out of pinboard.bmp. We can interpret four bytes as either big endian (AB CD) or little-endian (BA DC):
+Given this, two numbers would work as file offsets (however, see [4]) - perhaps
+we can pull a fragment of data out of pinboard.bmp. We can interpret four bytes
+as either big endian (AB CD) or little-endian (BA DC):
 
 A 11100110 0xe6 
 B 00011101 0x1d
@@ -169,9 +222,13 @@ D 01110010 0x72
 Big endian:    0xe61d 0xc272  58909 49778
 Little endian: 0x1de6 0x72c2  7654  29378
 
-Little endian is looking likely here - 7654 is less than 29378, so perhaps it's a start/end offset into the file. The other option seems less likely for that scenario. Also! 7654 looks like it might have been chosen by a human. Let's run with that guess and see where it takes us.
+Little endian is looking likely here - 7654 is less than 29378, so perhaps it's
+a start/end offset into the file. The other option seems less likely for that
+scenario. Also! 7654 looks like it might have been chosen by a human. Let's run
+with that guess and see where it takes us.
 
-Pulling up pinboard.bmp in vim and piping through xxd again, if we jump to offset 0x1de6 (7654) we get [4]:
+Pulling up pinboard.bmp in vim and piping through xxd again, if we jump to
+offset 0x1de6 (7654) we get [see note 4]:
 
 0001dd0: feff 73fe ffff 68ff fffe 73fe feff 74ff  ..s...h...s...t.
 0001de0: fffe 72fe feff 74fe feff 61fe ffff 62fe  ..r...t...a...b.
@@ -191,7 +248,8 @@ Pulling up pinboard.bmp in vim and piping through xxd again, if we jump to offse
 0001ec0: ffff 2eff fffe 64ff fefe 79fe fefe 6eff  ......d...y...n.
 0001ed0: feff 73ff fefe 79ff fffe 6dfe feff 00ff  ..s...y...m.....
 
-Hmm... could just be image data. But wait! You can spot gnu in there, and build: we have sneaky data hiding in the image!
+Hmm... could just be image data. But wait! You can spot gnu in there, and
+build: we have sneaky data hiding in the image!
 
 The strings we can see are:
 
@@ -206,17 +264,27 @@ gnu
 hash
 dynsym
 
-I had to Google some of these, but it turns out they're part of the ELF file format, hiding in the least significant bytes of the image (so the colour changes introduced are lost in the background noise). I was feeling whimsical, so what else but sed to pull out every fourth byte, starting from the top of the file:
+I had to Google some of these, but it turns out they're part of the ELF file
+format, hiding in the least significant bytes of the image (so the colour
+changes introduced are lost in the background noise). I was feeling whimsical,
+so what else but sed to pull out every fourth byte, starting from the top of
+the file:
 
 xxd pinboard.bmp | sed -n 's/ .... \(..\)../\1/g ; s/^.*:\([^ ]*\)  .*$/\1/p' | xxd -r -p > pinboard.elf
 
 Some notes on this:
- * xxd pinboard.bmp produces the output format shown above (lines of "0001dd0: feff 73fe ffff 68ff fffe 73fe feff 74ff  ..s...h...s...t.")
+ * xxd pinboard.bmp produces the output format shown above (lines of "0001dd0:
+   feff 73fe ffff 68ff fffe 73fe feff 74ff  ..s...h...s...t.")
  * There are two commands in the sed script:
-   * The first replaces the pattern " 1122 3344" with "33" - the byte we care about - and will do this four times per line (the g option)
-   * The second strips off the offset ("0001ed0:") and ASCII ("..s...y...m.....") parts
-   * This leaves us with lines of four hex bytes. For example, the first line in the block above is changed to "73687374", or "shst" in ASCII. 
- * The -r option to xxd converts hex back to binary, and -p tells it to interpret the input as plain hex bytes (no offsets or ASCII). It helpfully ignores whitespace.
+   * The first replaces the pattern " 1122 3344" with "33" - the byte we care
+     about - and will do this four times per line (the g option)
+   * The second strips off the offset ("0001ed0:") and ASCII
+     ("..s...y...m.....") parts
+   * This leaves us with lines of four hex bytes. For example, the first line
+     in the block above is changed to "73687374", or "shst" in ASCII. 
+ * The -r option to xxd converts hex back to binary, and -p tells it to
+   interpret the input as plain hex bytes (no offsets or ASCII). It helpfully
+   ignores whitespace.
  
 We end up with a file pinboard.elf that isn't quite a valid ELF binary:
 
@@ -228,7 +296,9 @@ patrick@ace:~/sectalks/ctfs/0x06 [0]$ xxd pinboard.elf | head -n4
 0000020: 0002 0028 0001 0000 009c 8300 0034 0000  ...(.........4..
 0000030: 005c 0800 0002 0000 0534 0020 0008 0028  .\.......4. ...(
 
-ELFs must start with 0x7f454c46 or \x7fELF (see [5]), so we have some guff at the start courtesy of the BMP header. Stripping this off with vim (%!xxd -p to edit, %!xxd -r -p to go back to binary, then save) gets us:
+ELFs must start with 0x7f454c46 or \x7fELF (see [5]), so we have some guff at
+the start courtesy of the BMP header. Stripping this off with vim (%!xxd -p to
+edit, %!xxd -r -p to go back to binary, then save) gets us:
 
 patrick@ace:~/sectalks/ctfs/0x06 [0]$ xxd pinboard.elf | head -n3
 0000000: 7f45 4c46 0101 0100 0000 0000 0000 0000  .ELF............
@@ -245,7 +315,9 @@ Sure enough:
 patrick@ace:~/sectalks/ctfs/0x06 [0]$ ./pinboard.elf
 bash: ./pinboard.elf: cannot execute binary file
 
-I'll spare you the two hours of pain I went through trying to make qemu work on my x64 Linux box, 12,000km away from me in Perth. Suffice to say the following was both sufficient and (I think) necessary:
+I'll spare you the two hours of pain I went through trying to make qemu work on
+my x64 Linux box, 12,000km away from me in Perth. Suffice to say the following
+was both sufficient and (I think) necessary:
 
 patrick@ace:~/sectalks/ctfs/0x06 [0]$ sudo apt-get install qemu-system-arm qemu-user libc6-armhf-cross libc6-armhf-armel-cross
 patrick@ace:~/sectalks/ctfs/0x06 [0]$ export LD_LIBRARY_PATH=/usr/arm-linux-gnueabi/
@@ -259,9 +331,13 @@ The executable spat out some data! And look!
 patrick@ace:~/sectalks/ctfs/0x06 [130]$ sha1sum pinboard.out
 5f377e06a4ff1465cf65765cb37107d64d4dc125  pinboard.out
 
-The SHA1 hash matches the fragment on the post-it note! This made me very happy. I had a little chuckle into my beard[7]; some people nearby gave me odd looks.
+The SHA1 hash matches the fragment on the post-it note! This made me very
+happy. I had a little chuckle into my beard[7]; some people nearby gave me odd
+looks.
 
-Following the instructions on the note ("been told this is useful for 5f377e06...") if we use the Frankenstein-certificate we created above on pinboard.out we get:
+Following the instructions on the note ("been told this is useful for
+5f377e06...") if we use the Frankenstein-certificate we created above on
+pinboard.out we get:
 
 patrick@ace:~/sectalks/ctfs/0x06 [0]$ openssl rsautl -decrypt -inkey patchedkey.der -keyform der -raw < pinboard.out
 THE HILARIOUS FLAG IS LEFT AS AN EXERCISE FOR THE READER 
@@ -272,9 +348,12 @@ patrick@ace:~/sectalks/ctfs/0x06 [0]$
 1. https://github.com/sqweek/sectalks/blob/master/ctf-solutions/0x06/sqweek/solution.txt
 2. http://beej.us/guide/bgnet/output/html/singlepage/bgnet.html#htonsman, http://en.wikipedia.org/wiki/Endianness
 3. ...and I would be extremely impressed if it did :P
-4. It turns out I was just extremely lucky: the binary had nothing to do with file offsets. Sqweek points out that "01110011 01110100 01100001 01110010 = star" at [1]. So, um. Winning! :P
+4. It turns out I was just extremely lucky: the binary had nothing to do with
+   file offsets. Sqweek points out that "01110011 01110100 01100001 01110010 =
+   star" at [1]. So, um. Winning! :P
 5. http://en.wikipedia.org/wiki/Executable_and_Linkable_Format#File_header
-6. In addition to _overriding libc6 with a local copy_ I also had a to sacrifice a goat, turn three times and spit. YMMV
+6. In addition to _overriding libc6 with a local copy_ I also had a to
+   sacrifice a goat, turn three times and spit. YMMV
 7. BTW I have a beard now
 8. Not the actual flag
 
