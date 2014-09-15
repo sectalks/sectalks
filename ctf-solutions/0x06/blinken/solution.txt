@@ -55,11 +55,11 @@ nice and much more comprehensive writeup at [1]].
 =Certificates wooooo=
 Moving on to the huge slab of hex. Now, courtesy of large and painful chunks of
 my life spent debugging Kerberos I happen to know that all ASN1-packed
-certificates start with 0x3082 (or MII in base64). And this chunk of hex?
+certificates start with 0x3082 (or MII in base64[9]). And this chunk of hex?
 
 30 82 04 a2 02 01 00 02 82 01 01 00 a4 ...
 
-Well, would you look at that. Assuming`that this isn't a coincidence, the next
+Well, would you look at that. Assuming that this isn't a coincidence, the next
 two bytes give the length of the rest of the certificate - in this case 0x04a2
 is 1186 bytes. That's certainly plausible-certificate-length. Opening up the
 document_fragment file in vim, with the help of a few macros we can get it into
@@ -201,7 +201,7 @@ Padding these to the same length reveals they all fit exactly in eight bits:
 
 Four eight-bit numbers? My immediate thought was an IP address. If the address
 is given in network mode[2], then we get 230.29.194.114, otherwise we get
-114.194.29.230. 
+29.230.114.194.
 
 Neither of these addresses resolved to anything useful. Hmm.
 
@@ -356,4 +356,8 @@ patrick@ace:~/sectalks/ctfs/0x06 [0]$
    sacrifice a goat, turn three times and spit. YMMV
 7. BTW I have a beard now
 8. Not the actual flag
-
+9. This is true only if the most significant two bits of the third byte of data
+   are zero: each character in base64 represents six bits, so to encode two bytes
+   (12 bits) we need three base64 characters = 18 bits - we get two bits of
+   crossover. The third and fourth bytes in ASN1 encode the data length, so
+   for especially long ASN1 structures you might see MIJ, MIK etc.
