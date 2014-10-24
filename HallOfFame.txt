@@ -1,5 +1,9 @@
 Winners of SecTalks Challenges
 
+[Challenge 0x05 by booto - 24 July 2014]
+squeek
+blinken
+
 [Challenge 0x05 by swarley and kronicd - 26 June 2014]
 booto
 
