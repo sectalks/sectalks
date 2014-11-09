@@ -1,0 +1,73 @@
+SecTalks Weekend Reads - A weekly short list of good infosec reads
+Free free to add your suggestions.
+
+[9 Nov 2014]
+A kernel driver to practice writing explits against
+https://github.com/clymb3r/KdExploitMe
+
+WIRELURKER: A New Era in iOS and OS X Malware
+https://www.paloaltonetworks.com/content/dam/paloaltonetworks-com/en_US/assets/pdf/reports/Unit_42/unit42-wirelurker.pdf
+
+Handcrafted Fraud and Extortion: Manual Account Hijacking in the Wild
+http://services.google.com/fh/files/blogs/google_hijacking_study_2014.pdf
+
+[25 Oct 2014]
+pki.io - Scalable and open source X.509 certificate management
+http://pki.io/
+
+[18 Oct 2014]
+Introduction to Kernel Debugging with Windbg
+http://resources.infosecinstitute.com/introduction-to-kernel-debugging-with-windbg/
+
+[7 September 2014]
+Hell of a Handshake: Abusing TCP for Reflective Amplification DDoS Attacks
+https://www.usenix.org/conference/woot14/workshop-program/presentation/kuhrer
+
+Technical analysis of client identification mechanisms
+https://sites.google.com/a/chromium.org/dev/Home/chromium-security/client-identification-mechanisms
+
+[31 August 2014]
+Learn Crypto and Cryptoanalysis using Cryptool2
+http://www.cryptool.org/en/cryptool2-en
+
+Forensics Evidence Processing – Super Timeline
+http://countuponsecurity.com/2014/08/25/forensics-evidence-processing-super-timeline/
+
+[23 August 2014]
+CSRF protection with custom headers (and without validating token)
+http://security.stackexchange.com/questions/23371/csrf-protection-with-custom-headers-and-without-validating-token
+
+Practical Android Explitation
+http://theroot.ninja/PAE.pdf
+
+Uroburos - Highly complex espionage software with Russian roots
+https://public.gdatasoftware.com/Web/Content/INT/Blog/2014/02_2014/documents/GData_Uroburos_RedPaper_EN_v1.pdf
+
+Uroburos: the snake rootkit
+http://artemonsecurity.com/uroburos.pdf
+
+Black Hat and Def Con in pictures
+http://arstechnica.com/security/2014/08/what-happens-in-vegas-black-hat-and-def-con-in-pictures/
+
+2014 BUSINESS PASSWORD ANALYSIS
+https://gsr.trustwave.com/topics/business-password-analysis/2014-business-password-analysis/
+
+[16 August 2014]
+How to Use Your Cat to Hack Your Neighbor’s Wi-Fi
+http://www.wired.com/2014/08/how-to-use-your-cat-to-hack-your-neighbors-wi-fi/
+
+DDoS and Geopolitics – Attack analysis in the context of the Israeli-Hamas conflict
+http://www.arbornetworks.com/asert/2014/08/ddos-and-geopolitics-attack-analysis-in-the-context-of-the-israeli-hamas-conflict/
+
+Matasano learn crypto challenges
+http://cryptopals.com/
+
+A prefix fuzzer for IPv6 networks
+https://github.com/dragonresearchgroup/pfuzz
+
+Poweliks: the persistent malware without a file
+https://blog.gdatasoftware.com/blog/article/poweliks-the-persistent-malware-without-a-file.html
+
+[9 August 2014]
+hostmap is an automatic tool for host name and virtual host discovery.
+http://hostmap.lonerunners.net/doc/README.pdf
