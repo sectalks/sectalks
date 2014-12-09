@@ -1,0 +1,1 @@
+This challenge was made for Google Chrome, and may or may not work in other browsers. It should be worth mentioning, that at one point, you’ll encounter something which appears to be ciphertext: not all of this ciphertext can be decrypted (i.e. not all of it is actual ciphertext).

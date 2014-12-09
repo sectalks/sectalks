@@ -1,7 +1,10 @@
 Winners of SecTalks Challenges
 
+[Challenge SYDx02 by devesh, cindy, xtina - 3 Dec 2014]
+Team: Josh L, Marcin G
+
 [Challenge SYD0x01 by norman - 6 Nov 2014]
-Team: paul, xtina, cynthia, devesh
+Team: paul, xtina, cindy, devesh
 
 [Challenge SYD0x00 Ninja Night - 1 Oct 2014]
 Team: kerbal, norman
