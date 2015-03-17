@@ -1,0 +1,13 @@
+# LaTeX generated files.
+*.aux
+*.log
+*.nav
+*.out
+*.pytxcode
+*.snm
+*.toc
+*.vrb
+revision.tex
+
+# Output PDFs shouldn't be commited.
+#*.pdf

@@ -1,0 +1,87 @@
+\documentclass[usenames,xcolor=dvipsnames]{beamer}
+\usecolortheme{orchid}
+\usetheme{CambridgeUS}
+
+\title{Hints}
+\author{Aleksa Sarai, John Cramb}
+\institute{\texttt{SYD0x05}}
+\date{March 2015}
+
+\usepackage{hyperref}
+\hypersetup{pdfpagemode=FullScreen}
+
+\usepackage{float}
+\usepackage{color}
+\usepackage{graphics}
+\usepackage{ulem}
+\usepackage{textcomp}
+
+% Define a nice list environment.
+\newenvironment{list**}
+	{\begin{list}{\textcolor{blue}{$\ast$}}{\leftmargin=1em \itemindent=0em}}
+	{\end{list}}
+
+% Define a nice definition environment.
+\newenvironment{definition**}
+	{\begin{list}{}{\leftmargin=2.5em \itemindent=0em}}
+	{\end{list}}
+
+% Define a nice definition environment.
+\setbeamertemplate{enumerate items}[default]
+\newenvironment{enumerate**}
+	{\begin{enumerate}}
+	{\end{enumerate}}
+
+% Redefine \sout<> to allow for beamer magic.
+\renewcommand<>{\sout}[1]{
+  \alt#2{\beameroriginal{\sout}{#1}}{#1}
+}
+
+\begin{document}
+
+% Title page.
+\begin{frame}
+	\titlepage
+\end{frame}
+
+% Hello page.
+\begin{frame}
+	\frametitle{Getting ready for r00t.}
+	\begin{list**}
+		\item<2-> Point your \texttt{ssh} to \texttt{[REDACTED]}.
+		\item<3-> The user is \texttt{ctf}, and the pasword is \dots
+		\item<4-> \texttt{GodLovesKermitSex}
+		\item<5-> \dots don't ask. It's a Hackers reference.
+	\end{list**}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Hints for Stage 1.}
+	\begin{list**}
+		\item<1-> Your goal is to get the magic \texttt{flag\{\dots\}} from \texttt{s3cur3s4f3}. Use that to authenticate with \texttt{w00t} to get to stage 2.
+		\item<2-> Pay heed to the debugging information!
+		\item<3-> The person who wrote the pin generator got it from stack overflow.
+		\item<4-> Each pin digit is generated separately.
+		\item<5-> What happens with really big input in a note?
+		\item<6-> \texttt{dmesg} gives you the \texttt{eip}.
+		\item<7-> Little Endian, motherfuckers.
+	\end{list**}
+\end{frame}
+
+\begin{frame}
+	\frametitle{Hints for Stage 2.}
+	\begin{list**}
+		\item<1-> Your goal is to get the flag in \texttt{/flag}.
+		\item<2-> \texttt{ps aux}. What is \texttt{cron} doing?
+		\item<3-> What is the first thing you do when given a random unix binary? Hau 2 help?
+		\item<4-> Use the directory permissions, Luke.
+		\item<5-> The Sysadmin's Golden Rule: Log verbosely and log often.
+		\begin{list**}
+			\item<6-> What is wrong (from a "too much information" perspective) with the log output?
+		\end{list**}
+		\item<7-> The person who wrote this program tried to sanitise symlinks. He didn't succeed.
+		\item<8-> There are three types of symlinks. Those who care about the directories around them and those who don't. And the ones that are just wrong. \textbf{tl;dr}: \texttt{symlink(2)} is stupid.
+	\end{list**}
+\end{frame}
+
+\end{document}
