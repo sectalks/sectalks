@@ -1,0 +1,15 @@
+== BSS CTF ==
+
+The VM (OVA) is available for download from here
+https://dl.dropboxusercontent.com/u/70666296/CTF.zip
+
+Username: bob
+Password: sectalks
+
+The CTF binary is game. The first task is to win the jackpot. This will give
+you a hint on how to escalate your privileges and obtain the flag in
+/root/flag. The source code is available in game.c
+
+The binary was compiled with:
+
+$ gcc -m32 -fno-stack-protector -z execstack game.c -o game
