@@ -9,27 +9,25 @@
 Welcome!
 Here you can find talk materials (the ones that were shared by speakers), Challenges (miniCTFs) and their solutions.
 
-See *HallOfFame.txt* for list of SecTalks Challange winners.
+See *HallOfFame.txt* for list of SecTalks Challange winners (note: it has not been updated for a while).
 
-https://www.sectalks.org
+http://www.sectalks.org
 
-Awesome speakers
-====================
+# Awesome speakers
 1. Fork the repo.
-2. Compress your talk's material and preferably convert it to pdf.
-3. Create a directory under talks/0xLLLNN (replace LLL with location of the meetup (e.g. PER, SYD)  NN with a session number)
-4. Use your talk title as a filename and replace non-alphanumeric chars with underline.
-5. Push your talk materials. 
-6. Send a pull request.
+1. Compress your talk's material and preferably convert it to pdf.
+1. Create a directory under talks/XXX0xYY (replace XXX with the location of the meetup (e.g. PER, SYD) and YY with a session number)
+1. Use your talk title as a filename and replace non-alphanumeric chars with underline.
+1. Push your talk materials. 
+1. Send a pull request.
 
-Glorious winners
-====================
+# Glorious winners
 1. Fork the repo.
-2. Create a directory under ctf-solution/0xNN/YOURNICKNAME (replace NN with a session number).
-3. Push your solution materials (e.g. source code, binary, write-up etc.). 
-4. Send a pull request.
+1. Create a directory under ctf-solution/XXX0xYY/YOURNICKNAME (replace XXX with your city name and YY with the session number).
+1. Push your solution materials (e.g. source code, binary, write-up etc.). 
+1. Send a pull request.
 
-====================
+# Copyright
 Except where otherwise noted, content on this repository
 is licensed under a Creative Commons Attribution-NonCommercial 3.0 Unported License
 (http://creativecommons.org/licenses/by-nc/3.0/deed.en_US).
