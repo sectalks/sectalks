@@ -20,3 +20,5 @@ The VM is located at https://www.dropbox.com/s/e2x79z5ovqqsejg/Fuku.ova?dl=0 [Fi
 
 1. Some scripting will probably be needed to find a useful port.
 2. If the machine seems to go down after a while, it probably hasn't. This CTF isn't called Fuku for nothing!
+
+Contact @RobertWinkel for more hints.
