@@ -1,0 +1,33 @@
+== BSS CTF ==
+
+The VM (OVA) is available for download from here
+https://dl.dropboxusercontent.com/u/70666296/CTF.zip
+
+Username: bob
+Password: sectalks
+
+The CTF binary is game. The first task is to win the jackpot. This will give
+you a hint on how to escalate your privileges and obtain the flag in
+/root/flag. The source code is available in game.c
+
+The binary was compiled with:
+
+$ gcc -m32 -fno-stack-protector -z execstack game.c -o game
+
+== Relevant readup ==
+http://insecure.org/stf/smashstack.html
+
+== Hints ==
+1. It's a bss overflow.
+
+2. To win the jack, get the address of jackpot() function and jump to
+it directly by overflowing the bss buffer and setting the
+function_ptr.
+
+3. Store your shellcode in an env variable. The stack is not
+randomised. Get the address of the env variable with your shellcode
+and jump to it by overflowing the buffer in bss!
+
+compiled with gcc -m32 -fno-stack-protector -z execstack game.c -o game
+chown root.root game; chmod u+s game
+there's the shellcode in /usr/share/shellcode
