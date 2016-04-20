@@ -1,4 +1,5 @@
 # SYD0x0f
+## Web - Flag 1
 Manual testing of the login page using a username of a single quote and a password of "test" returns an error page
 ```SQL
 Fatal Error: MySQL Query Error: SELECT * from users where username = ''' and password = 'a'
@@ -222,4 +223,8 @@ Table: users
 [*] shutting down at 10:44:09
 ```
 After logging in as john, you'll see the first flag **flag{d37fcf5615b10427d96aa95c0aa183ba}** under the tasks panel.
-If you attempt to log in as admin, you'll receive an error "Correct password. However security policy currenty prevents direct logins as admin from your IP."
+## Web - Flag 2
+If you attempt to log in as admin, you'll receive an error "Correct password. However security policy currenty prevents direct logins as admin from your IP.".
+If you open up Chromes inspector and look at the cookies you'll notice there are two cookies named "username" and "isadmin".
+When logged in as john the username cookies value is "john" and the isadmin cookies value is false.
+Using a cookie editor and change the username cookie value to "admin" and the isadmin cookie value to true we'll get the second flag **flag{744af6c3f5d9cc8ce0e24174afc2a0fc}** when you browse to the Secure File Storage. section.
