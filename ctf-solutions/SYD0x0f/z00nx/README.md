@@ -227,4 +227,45 @@ After logging in as john, you'll see the first flag **flag{d37fcf5615b10427d96aa
 If you attempt to log in as admin, you'll receive an error "Correct password. However security policy currenty prevents direct logins as admin from your IP.".
 If you open up Chromes inspector and look at the cookies you'll notice there are two cookies named "username" and "isadmin".
 When logged in as john the username cookies value is "john" and the isadmin cookies value is false.
-Using a cookie editor and change the username cookie value to "admin" and the isadmin cookie value to true we'll get the second flag **flag{744af6c3f5d9cc8ce0e24174afc2a0fc}** when you browse to the Secure File Storage. section.
+Using a cookie editor and change the username cookie value to "admin" and the isadmin cookie value to true we'll get the second flag **flag{744af6c3f5d9cc8ce0e24174afc2a0fc}** when you browse to the Secure File Storage section.
+## Forensics - Flag 3
+In the Secure File Storage section when logged in as admin there is a link to a file named "file.zip".
+Attempting to unzip the file you'll be prompted for a password. I initially tried to crack the password using fcrackzip but it was generating too many false positive passwords. Even when I tried using the "-u" option in fcrackzip to validate password by attempting to unzip the file it was taking ages. Switching over to using john the ripper I was able to crack the password nearly instantly.
+```console
+root@kali $ zip2john file.zip > zip.hashes
+file.zip->secret.pcap PKZIP Encr: cmplen=1206, decmplen=4297, crc=CEE1B5FA
+root@kali $ john zip.hashes
+Loaded 1 password hash (PKZIP [32/64])
+alice            (file.zip)
+guesses: 1  time: 0:00:00:01 DONE (Thu Apr 21 02:55:51 2016)  c/s: 11738  trying: 123456 - 222222
+Use the "--show" option to display all of the cracked passwords reliably
+root@kali $ unzip -P alice file.zip
+Archive:  file.zip
+  inflating: secret.pcap
+```
+Inside the zip file is packet capture. Looking at the packet capture there are a bunch of DNS and NetBIOS traffic. What's really interesting is the DNS lookups for really long domains.
+```console
+root@kali $ tshark -r secret.pcap -Y 'dns && dns.flags.response==0' -T fields -e dns.qry.name
+436f6e67726174756c6174696f6e732121210a666c61677b653039313738.ctf.rip
+313434303334656635306663353164356630643465353364626238366263.ctf.rip
+633166323034643936646536343230646665616261323539346438307d0a.ctf.rip
+```
+If we concatonate the three subdomain and hex decode we find the third flag **flag{e09178144034ef50fc51d5f0d4e53dbb86bcc1f204d96de6420dfeaba2594d80}**.
+```console
+root@kali $ ipython2
+Python 2.7.11 (default, Jan 11 2016, 23:22:46)
+Type "copyright", "credits" or "license" for more information.
+
+IPython 4.1.2 -- An enhanced Interactive Python.
+?         -> Introduction and overview of IPython's features.
+%quickref -> Quick reference.
+help      -> Python's own help system.
+object?   -> Details about 'object', use 'object??' for extra details.
+
+In[1]print('436f6e67726174756c6174696f6e732121210a666c61677b653039313738313434303334656635306663353164356630643465353364626238366263633166323034643936646536343230646665616261323539346438307d0a'.decode('hex'))
+Congratulations!!!
+flag{e09178144034ef50fc51d5f0d4e53dbb86bcc1f204d96de6420dfeaba2594d80}
+```
+## Credits and thanks
+Thanks to steffnj for assistance and brainstorming
+Thanks to Kris Hunt(@CTFKris) for putting together the CTF. It was a fun and challenging CTF.
