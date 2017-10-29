@@ -6,7 +6,7 @@ https://codewordsolver.com/anonymity/
 
 Just grep for "Megan Fox"
 
-634-90-4205,Megan Fox,"274 Pamela Island, Lake David, IA 23210",Actress,1-886-486-1186x9935,Sunburn
+    634-90-4205,Megan Fox,"274 Pamela Island, Lake David, IA 23210",Actress,1-886-486-1186x9935,Sunburn
 
 ## Challenge 2
 
