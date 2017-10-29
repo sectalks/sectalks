@@ -1,0 +1,25 @@
+Steps:
+
+* fetched and unpacked sectalks_ctf_0x06.7z
+* used http://rot13.com/ to decode hints
+  * it contained pinboard.bmp and document_fragment
+* used binwalk on pinboard.bmp, it got hashblock.160bit and a lot of crap
+  * used ruby to cut hashblock.160bit into 160bit pieces which were presumably hashes
+* used https://hashkiller.co.uk/md5-decrypter.aspx to decode them all at once,
+  result was a bunch of short strings
+  first letters of them (except for "colon" "dot" and "slash") formed url to pic on imgur
+* pic said "sample length notation", which was fairly meaningless and unhelpful
+  but it was something about bmp encoding, so I tried extracting R-channel, G-channel, B-channel, and A-channel data
+  from it (taking every 4th byte) and binwalking individual files.
+  That resulted in ARM binary.
+* Since I didn't have rooted phone or raspberry pi with me, I used raspberry pi emulator
+  at https://sourceforge.net/projects/raspberrypiemulator/
+* I sshed to emulator, ran the binary, it produced a message file
+* at this point I and no idea, so I had to use hints - they said to use dumpasn1
+  * so I got that program, converted torn page to asn1 file by filling empty spaces with zeros,
+    and it returned something that looked like private rsa key
+  * I didn't remember how to convert that to private key, so I verified that three
+    numbers in it are indeed pq, e, and d by doing some math in ruby
+  * then I decoded message file with same ruby code by just ct^d % pq
+  * that returned a flag
+* there was also something about a rug in that ARM binary, and probably some other extras
