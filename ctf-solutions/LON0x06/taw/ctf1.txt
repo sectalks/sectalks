@@ -1,0 +1,18 @@
+Steps:
+
+* fetch unpack https://blinken.co/sectalks_lon-0x06.zip
+* it contains mail and key
+  * mail has header X-Cipher: aes-128-cbc showing encryption used
+  * I extracted encrypted data with ruby and regular expression, but binwalk could be used as well,
+    getting out1
+* I used openssl to decrypt the data:
+  $ openssl aes-128-cbc -d -kfile key <out1 >out2
+* out2 contained a lot of base64 data, so I extracted it with ruby and regular expression to out3
+* `file out3` said it's an ISO image
+  * I tried to mount it, but it failed
+  * instead used 7zip to unpack it
+  * since size was 100k unpacked 3mb packed, I suspected there's other stuff there
+    so I also played in VLC, it's a rickroll
+* unpacked file contained:
+  * snowden's pic with exifdata with gps coordinates in Moscow and room number in user comment
+  * also hand-drawn map with plan to assault his home
