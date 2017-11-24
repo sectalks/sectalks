@@ -1,0 +1,84 @@
+#!/usr/bin/env python
+DT=[len(w)-1 for w in open(__file__).readlines()]
+import sys
+
+def validate(key):
+    if len(key) != DT[58]:
+        return False
+    if ord(key[DT[67]]) - (DT[79]*DT[64]+DT[76]) != (DT[75]*DT[64]+DT[82]):
+        return False
+    if ord(key[DT[70]]) + (DT[75]*DT[64]+DT[66]) != (DT[70]*DT[64]+DT[78]):
+        return False
+    if ord(key[DT[65]]) + (DT[79]*DT[64]+DT[68]) != (DT[72]*DT[64]+DT[67]):
+        return False
+    if ord(key[DT[77]]) + (DT[75]*DT[64]+DT[73]) != (DT[52]*DT[64]+DT[75]):
+        return False
+    if ord(key[DT[72]]) + DT[75] != (DT[74]*DT[64]+DT[77]):
+        return False
+    if ord(key[DT[62]]) + (DT[79]*DT[64]+DT[57]) != (DT[72]*DT[64]+DT[70]):
+        return False
+    if ord(key[DT[52]]) - (DT[75]*DT[64]+DT[72]) != (DT[79]*DT[64]+DT[77]):
+        return False
+    if ord(key[DT[75]]) + (DT[79]*DT[64]+DT[69]) != (DT[52]*DT[64]+DT[59]):
+        return False
+    if ord(key[DT[79]]) + (DT[74]*DT[64]+DT[81]) != (DT[72]*DT[64]+DT[66]):
+        return False
+    if ord(key[DT[55]]) - DT[52] != (DT[74]*DT[64]+DT[74]):
+        return False
+    if ord(key[DT[82]]) + (DT[79]*DT[64]+DT[78]) != (DT[52]*DT[64]+DT[54]):
+        return False
+    if ord(key[DT[74]]) - (DT[75]*DT[64]+DT[63]) != (DT[75]*DT[64]+DT[83]):
+        return False
+    if ord(key[DT[80]]) - (DT[75]*DT[64]+DT[54]) != (DT[75]*DT[64]+DT[57]):
+        return False
+    if ord(key[DT[71]]) - DT[52] != (DT[74]*DT[64]+DT[61]):
+        return False
+    if ord(key[DT[69]]) + (DT[79]*DT[64]+DT[79]) != (DT[52]*DT[64]+DT[74]):
+        return False
+    if ord(key[DT[81]]) - DT[79] != (DT[74]*DT[64]+DT[79]):
+        return False
+    if ord(key[DT[61]]) + (DT[79]*DT[64]+DT[56]) != (DT[52]*DT[64]+DT[63]):
+        return False
+    if ord(key[DT[76]]) - DT[57] != (DT[79]*DT[64]+DT[60]):
+        return False
+    return True
+
+if len(sys.argv) != DT[79]:
+    print("Please specify password to test as argument")
+elif validate(sys.argv[DT[75]]):
+    print("Correct password")
+else:
+    print("Incorrect password")
+                       
+     
+                         
+                              
+          
+                      
+                           
+                  
+                    
+                          
+               
+             
+                               
+                                
+              
+                   
+         
+                             
+           
+    
+                
+      
+                        
+   
+ 
+       
+        
+                            
+  
+                 
+
+            
+                     
