@@ -1,0 +1,13 @@
+Data is hidden inside the image (stenography)
+
+1. Open the image in gimp
+2. Use magic want tool with very low tolerance and select top left pixel
+3. Fill with black, notice the many squares and stripes seft in the original colour. If converted from binary to ascii, the top two rows spell "PK" indicating that it's a zip file.
+4. Invert selection and fill with white
+4. Export the image as pnm file - this is uncompressed and bytes are in a logical order (we got a hint for this)
+5. Open file in hex editor
+6. Replace blocks of 9 FF bytes with byte for ASCII "0"
+7. Replace blocks of 3 FF bytes with byte for ASCII "1"
+8. Replace all 00 bytes with nothing - You now have a file containing binary for a zip file, represented as ascii
+9. Convert the ascii 1s and 0s to binary by piping it to this perl-fu: perl -lpe '$_=pack"B*",$_' and redirecting the output to a file.
+10. Open zip file and find flag
