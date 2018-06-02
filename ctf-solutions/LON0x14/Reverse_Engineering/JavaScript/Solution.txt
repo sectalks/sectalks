@@ -1,0 +1,9 @@
+This HTML file contains javascript that has been obfuscated using jsfuck.
+
+Steps to get the flag:
+1. Open HTML file in Chrome
+2. Right click on input field and choose "Inspect"
+3. Click on "Event Listners"
+4. Expand the submit listener
+5. Click on the link to the "VM" script
+6. View the deobfuscated JS, containing the flag in plain text
