@@ -22,11 +22,9 @@ th3 us3r t0k3n y0u s33k is: [hidden]`
 
 This was an interesting one to solve. The binary we were given gave the appearence of providing a token if the system is considered to be secure. The binary required a single parameter, supposedly the username.
 
-`The file was a 64-Bit ELF file, built for Linux 3.2. So the next logical step was to run it through`
+Running the program with the username argument, it stated the system was not secure, so could not run. The next logical step was to run it through strace to see what system calls were being made, maybe it was looking for a particular file?
 
-Running the program with the username parameter it indicated the system was not secure, so could not run. The next logical step was to run it through strace to see what system calls were being made, maybe it was looking for a particular file?
-
-It wasn't trying to read any files, other than the libraries it required.
+It turns out that wasn't the case, it wasn't trying to read any files, other than the libraries it required.
 
 ```
   linux-vdso.so.1 (0x00007ffcd83ea000)
@@ -76,7 +74,7 @@ So I had to toggle the ZF flag before proceeding.
 set $eflag ^= (1 << 6)
 ```
 
-This new cpde path got me a different message.
+This new code path got me a different message.
 
      `Agent ashtx, it appears you are attemtping to use Agent Smith's Secure System 2.0 validator.
      This violation will be reported to the GGoCySEA Information Security Team.
@@ -141,13 +139,13 @@ I approached this one with caution as I was expecting a tar bomb. So I used tar 
  tar -tvf nothing_in_here.tar
 ```
 
-As described in the challenge, the directory structure was deep, however the noise was from nested folders with the same name, "nothing in here", which most ended up being dead ends. So to cut down the noise I excluded paths ending in that directory name.
+As described in the challenge, the directory structure was deep, however the noise was from nested folders with the same name, ***nothing in here***, which most ended up being dead ends. So to cut down the noise I excluded paths ending in that directory name.
 
 ```
  tar -tvf nothing_in_here.tar | grep -v 'nothing in here/$'
 ```
 
-To my luck this immediately printed the flag as well as a few other dead ends such as "jk lol" and "something in here". 
+To my luck this immediately printed the flag as well as a few other dead ends such as ***jk lol*** and ***something in here***. 
 
 ```
  ../nothing in here/f l a g { t h i n k _ o f _ t h e _ i n o d e s }/
