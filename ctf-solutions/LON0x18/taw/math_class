@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+
+require "pry"
+
+host = "imhotepisinvisible.com"
+port = "6003"
+
+@conn = TCPSocket.new host, port
+
+def get_line
+  line = @conn.gets or return
+  line.chomp("\r\n")
+  puts "<<< #{line}"
+  line
+end
+
+def response(ans)
+  puts ">>> #{ans}"
+  @conn.puts ans
+end
+
+1.times do
+  while line = get_line
+    case line
+    when /Hello there/, /Are you ready for some maths/, /Nice/
+    when /subtract (\d+) from (\d+)/
+      response $2.to_i - $1.to_i
+    when /multiply (\d+) and (\d+)/
+      response $2.to_i * $1.to_i
+    when /add (\d+) and (\d+)/
+      response $2.to_i + $1.to_i
+    when /divide (\d+) by (\d+)/
+      response ($1.to_f / $2.to_f).round(8)
+    else
+      # binding.pry
+    end
+  end
+end

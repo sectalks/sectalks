@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+
+require "pry"
+require "zlib"
+
+data = open("pcap3.pcap", "rb").read
+
+ofs = 40-16
+sz = 213 + 16
+packets = 35.times.map{|i| data[ofs+sz*i, sz] }
+raise unless data.index(packets.last) + packets.last.size == data.size
+
+# Cut text
+packets = packets.map{|u| u[0...50] }
+variable_parts = packets.map{|u| u[16+16+7, 7]}
+
+direct = variable_parts.join
+flip = 7.times.map{|i| variable_parts.map{|v| v[i]}.join }.join
+
+# open("data", "wb"){|fh| fh.write direct }
+# open("data-flipped", "wb"){|fh| fh.write flip }
+
+puts Zlib::Inflate.inflate(flip)

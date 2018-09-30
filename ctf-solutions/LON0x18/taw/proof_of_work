@@ -1,0 +1,43 @@
+#!/usr/bin/env ruby
+
+require "pry"
+require "digest/sha1"
+
+host = "imhotepisinvisible.com"
+port = "6002"
+
+@conn = TCPSocket.new host, port
+
+def get_line
+  line = @conn.gets or return
+  line.chomp("\r\n")
+  puts "<<< #{line}"
+  line
+end
+
+def response(ans)
+  puts ">>> #{ans}"
+  @conn.puts ans
+end
+
+def hax(start, len, shaend)
+  # puts "HAXING"
+  c = start + "a" * (len-start.size)
+  until Digest::SHA1.hexdigest(c).end_with?(shaend)
+    c.next!
+  end
+  c
+end
+
+1.times do
+  while line = get_line
+    case line
+    when /I needs some proofs of work/, /boom/
+    when /Give me a string starting with (.*?), of length (\d+), such that its sha1 sum ends in (\S+)\./
+      s = hax($1, $2.to_i, $3)
+      response s
+    else
+      # binding.pry
+    end
+  end
+end
