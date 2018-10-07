@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Ouroboros</title>
+</head>
+<body style="text-align:center;">
+	<img src="https://upload.wikimedia.org/wikipedia/commons/8/87/Ouroboros_1.jpg" alt="Ouroboros 1.jpg">
+	<script>
+		String.prototype._=function(i){return this.charCodeAt(i)};
+		Array.prototype._=function(){return this.join("")};
+		Number.prototype._=function(){return String.fromCharCode(this)};
+		let r=r=>Array.apply([],{length:r}).map(Function.call,_=>(1&Math.random()*10^0|0)._())._(),
+			x=(a,b)=>{for(_=[],i=0,j=a.length,k=b.length,l=j^((j^k)&-(j<k));i<l;_.push((a._(i%j)^b._(i++%k))._())){};return _._()},
+			s=[44,49,119,107,11,127,37,48,78,120,114,39,101,56,126,55,98,47,57,99,103,120].map(_=>_._())._(),
+			z=[r(22),(''+x).slice(42,64),s],b=b=>c=>b==z.reduce(x,c),a=a=>a(a);
+		alert(a(b)(prompt()))
+	</script>
+</body>
+</html>
