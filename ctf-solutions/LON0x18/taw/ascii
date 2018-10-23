@@ -1,0 +1,57 @@
+#!/usr/bin/env ruby
+
+require "pry"
+
+host = "imhotepisinvisible.com"
+port = "6000"
+
+@conn = TCPSocket.new host, port
+
+def get_line
+  line = @conn.gets or return
+  line.chomp("\r\n")
+  puts "<<< #{line}"
+  line
+end
+
+def response(ans)
+  puts ">>> #{ans}"
+  @conn.puts ans
+end
+
+def parse_challenge(challenge)
+  count = (challenge[0].size+1)/9
+  res = []
+  count.times do |i|
+    start = i * 9
+    pic = challenge.map{ |row| row[start, 8] }
+    pry unless @ascii_table[pic]
+    res << @ascii_table[pic]
+  end
+  res
+end
+
+@ascii = [" ", *"A".."Z"].join
+@ascii_table = {}
+
+1.times do
+  @conn.puts @ascii
+  4.times { get_line }
+  ascii_pics = 8.times.map{ get_line }
+
+  27.times do |i|
+    start = i * 9
+    pic = ascii_pics.map{ |row| row[start, 8] }
+    @ascii_table[pic] = @ascii[i]
+  end
+
+  25.times do
+    challenge = 8.times.map{ get_line }
+    get_line
+    res = parse_challenge(challenge).join
+    response res
+    get_line
+  end
+
+  10.times { get_line }
+end
