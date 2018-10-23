@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  ascii:
+    restart: always
+    build: ascii/
+    ports:
+     - "6000:6000"
+  bewf:
+    restart: always
+    build: bewf/
+    ports:
+     - "6001:6001"
+  cerberus:
+    restart: always
+    build: cerberus/
+    ports:
+     - "6002:6002"
+  electric_maths:
+    restart: always
+    build: electric_maths/
+    ports:
+     - "6003:6003"
+  not_equal:
+    restart: always
+    build: not_equal/
+    ports:
+     - "6004:6004"
