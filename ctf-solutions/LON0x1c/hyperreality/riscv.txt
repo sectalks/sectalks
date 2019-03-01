@@ -1,0 +1,11 @@
+# Hello RISC-V
+
+Use this emulator: https://bellard.org/jslinux/vm.html?cpu=riscv64&url=https://bellard.org/jslinux/buildroot-riscv64.cfg&mem=256
+
+# RISC-V Verify
+
+In the emulator, use this:
+
+objdump -D ./riscv_verify | grep 'verify+0x16' -A 2 | grep -v verify | grep -v DYNAMIC | grep -v '23(s0)' | awk -F',' '{print $2}' | sed '$!N;s/\n/ /' | sort -n | awk '{print $2}' | while read line; do printf \\$(printf '%03o' $line); done
+
+It's horrible but it just about works.
