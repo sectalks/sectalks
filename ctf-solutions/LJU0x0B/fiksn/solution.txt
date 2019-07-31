@@ -1,0 +1,12 @@
+# A pcap file was given.
+
+tshark -r pcap_sectalk_final.pcap -T fields -e data udp.dstport==1337 | tr '\n' ' ' | rax2 -s > caesar.txt
+echo "$(head -c 20 caesar.txt | caesar 19)$(tail -c +21 caesar.txt | head -c 30 | caesar 11)$(tail -c +51 caesar.txt | caesar 9)"
+
+tshark -r pcap_sectalk_final.pcap -T fields -e ip.proto ip.dst==10.69.69.1 | xargs printf "0x%02x\n" | rax2 -s > protos.bin
+printf "\x1f\x8b\x08\x00\x00\x00\x00\x00" |cat - protos.bin | gzip -dc 2>/dev/null | rev
+
+# Hint for third part was "play fair" in message
+for i in $(tshark -r pcap_sectalk_final.pcap -T fields -e data udp.dstport==443); do echo $i | fold -w 2 | head -n 61 | tail -n 2; done | rax2 -s | tr '[:lower:]' '[:upper:]'
+# decrypt with https://www.dcode.fr/playfair-cipher (5x5 ABCDEFGHIKLMNOPQRSTUVWXYZ grid)
+# CONGRATZYOUHAVEFOUNDTHIRDPARTOFXFLAGWHICHISVERYEASYX
