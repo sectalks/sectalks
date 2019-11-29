@@ -1,0 +1,3 @@
+[submodule "ctfs/LON0x24"]
+	path = ctfs/LON0x24
+	url = https://github.com/bcaller/sectalks-lon0x24-ctf
