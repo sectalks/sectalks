@@ -1,0 +1,42 @@
+<h3>You are editing {{userapp}}.unhackable.app</h3>
+{{msg}}
+<form method="post" accept-charset="utf-8">
+<textarea class="form-control" style="min-width: 60%;" rows="12" name="code">{{code|e}}</textarea>
+<button id="submit" name="submit" type="submit" class="btn btn-lg btn-default">Update</button>
+</form>
+
+<h4>How-To</h4>
+You supply a YAML file containing Python code for {{userapp}}.unhackable.app
+
+The YAML file contains multiple urls/endpoints and a default handler. If no url is matched,
+the default handler will be used (usually display a 404 page).
+
+For each url, you have access to request dictionary, containing method, cookies, args, form, json,
+host, host_url, path, full_path, url, base_url, url_root, headers, remote_addr, and data.
+
+You also have access to uaeutils, containing some functions to make it easier for you to create response,
+including make_response, errorpage, redirect, json_encode, and json_decode, as shown in the following example.
+
+You will need to store your response in uae_rsp variable.
+
+<h4>Example</h4>
+<pre>
+---
+urls:
+  "/": |-
+    uae_rsp = uaeutils.make_response("Hello World")
+  "/ping": |-
+    uae_rsp = uaeutils.make_response("Pong", headers={"X-Served-By": "PingPong"})
+  "/add": |-
+    num_a = int(request['args'].get("a"))
+    num_b = int(request['args'].get("b"))
+    uae_rsp = uaeutils.make_response("Answer is " + str(num_a + num_b))
+  "/error": |-
+    uae_rsp = uaeutils.errorpage("Oops our server has fallen asleep")
+  "/redirect": |-
+    uae_rsp = uaeutils.redirect("https://www.adamyi.com/")
+  "/json": |-
+    uae_rsp = uaeutils.make_response(uaeutils.json_encode({"json": "is_easy"}))
+default_handler: |-
+  uae_rsp = uaeutils.errorpage("The requested URL %s was not found on this server." % request['path'], code=404)
+</pre>

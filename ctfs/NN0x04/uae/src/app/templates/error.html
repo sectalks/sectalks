@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  <title>Error</title>
+  <style type="text/css">
+    html,code{font:15px/22px arial,sans-serif}
+    html{background:#fff;color:#222;padding:15px}
+    *{margin:0;padding:0}
+    p{margin:22px 0 0;}
+    pre{white-space:pre-wrap;}
+  </style>
+</head>
+<body>
+  <p>
+    <span style="font-size: 200%;color:black">Unhackable App Engine</span>
+  </p>
+  <p><b>Error.</b> {{ message }}</p>
+  <p>Therefore we served HTTP status code {{ code }}.</p>
+  <p></p>
+  {% if debug %}
+  <p>
+  <b>Additional information because you have access to code:</b><br>
+  <b style="background-color:yellow;">Do <i>not</i> take a screenshot of this page, rather copy/paste the text below. You will be asked to retype this hard to read text!</b><br>
+  <pre>{{ debug }}</pre>
+  <b style="background-color:yellow;">Copy/paste the text above!</b>
+  Click here to download code: <a href="https://manage.unhackable.app/f7850386-f8a4-42a1-91a8-b19edb68fd5a/code.tgz">download</a>
+  </p>
+  {% endif %}
+</body>
+</html>
