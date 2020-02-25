@@ -1,0 +1,68 @@
+# THIS WAS FOR BUILDING WITH GEEGLE3 MONOREPO.
+# FOR STANDALONE CHALLENGE, USE THE DOCKERFILE INSTEAD.
+
+load("@io_bazel_rules_docker//container:container.bzl", "container_image")
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
+load("@gae_pip//:requirements.bzl", "requirement")
+load("//tools:challenge.bzl", "ctf_challenge")
+
+ctf_challenge()
+
+#java_library(
+#  name = "gae_runtime_wrapper",
+#  srcs = ["src/java/org/geegle/gae/GaeRuntimeWrapper.java"],
+#)
+
+pkg_tar(
+    name = "requirements",
+    srcs = [
+        requirement("certifi"),
+        requirement("chardet"),
+        requirement("Click"),
+        requirement("Flask"),
+        requirement("idna"),
+        requirement("itsdangerous"),
+        requirement("Jinja2"),
+        requirement("MarkupSafe"),
+        requirement("PyYAML"),
+        requirement("requests"),
+        requirement("urllib3"),
+        requirement("Werkzeug"),
+    ],
+    mode = "0755",
+    package_dir = "/python_requirements/adamyi/",
+    strip_prefix = ".",
+)
+
+container_image(
+    name = "image",
+    base = "@tomcat-jython//image",
+    cmd = ["/run.sh"],
+    entrypoint = [
+        "/bin/sh",
+        "-c",
+    ],
+    env = {
+        "JYTHONPATH": "/geegle/gae/java",
+    },
+    files = [
+        ":run.sh",
+        ":src",
+        ":tomcat",
+    ],
+    symlinks = {
+        "/usr/local/tomcat/conf/Catalina/localhost/ROOT.xml": "/tomcat/ROOT.xml",
+        "/usr/local/tomcat/conf/server.xml": "/tomcat/server.xml",
+        "/geegle/gae": "/src",
+    },
+    tars = [
+        ":requirements",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+container_image(
+    name = "image2",
+    base = "@tomcat-jython//image",
+    visibility = ["//visibility:public"],
+)
