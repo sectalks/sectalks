@@ -1,8 +1,10 @@
-# Hosting a JS Deobfuscation CTF
+# JS Deobfuscation CTF
+
+Author: [Hobietje](https://github.com/hobietje)
 
 ## Challenge
 
-Reverse engineer the JavaScript code.  Simplify it to the point you can actually understand what's going and figure out how toget the flag.
+Reverse engineer the JavaScript code.  Simplify it to the point you can actually understand what's going and figure out how to get the flag.
 
 Recommended tooling:
 
