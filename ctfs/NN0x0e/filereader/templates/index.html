@@ -1,0 +1,82 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Read File Content</title>
+    <style>
+      body {
+        background-color: #000;
+        color: #0F0;
+        font-family: monospace;
+      }
+      .matrix {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: -1;
+      }
+      .matrix:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background-color: rgba(0,0,0,0.05);
+        z-index: -2;
+      }
+      .matrix:after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 2px;
+        width: 100%;
+        background-color: #0F0;
+        animation: typing 3s infinite;
+        z-index: -1;
+      }
+      @keyframes typing {
+        from { width: 0; }
+        to { width: 100%; }
+      }
+      form {
+        margin-top: 20px;
+      }
+      label {
+        display: inline-block;
+        margin-right: 10px;
+      }
+      input[type="text"] {
+        width: 400px;
+        margin-right: 10px;
+      }
+      input[type="submit"] {
+        background-color: #0F0;
+        border: none;
+        color: #000;
+        padding: 10px 20px;
+        cursor: pointer;
+      }
+      input[type="submit"]:hover {
+        background-color: #FFF;
+        color: #0F0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="matrix"></div>
+    <h1>Read File Content</h1>
+    <form method="POST">
+      <label for="path">Enter a file path:</label>
+      <input type="text" id="path" name="path">
+      <input type="submit" value="Submit">
+    </form>
+  </body>
+</html>
+

@@ -1,0 +1,4 @@
+## Start
+```
+docker-compose up
+```

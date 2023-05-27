@@ -1,0 +1,13 @@
+{
+    "name": "bad-regex",
+    "version": "1.0.0",
+    "description": "Node.js based CTF challenge, now for WACTF!",
+    "author": "nandayo (aka perrc)",
+    "main": "server.js",
+    "scripts": {
+      "start": "node server.js"
+    },
+    "dependencies": {
+      "express": "^4.16.1"
+    }
+  }

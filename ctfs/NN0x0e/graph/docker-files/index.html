@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Graph</title>
+    <script type="text/javascript" src="https://youtube.com/iframe_api"></script>
+</head>
+<style>
+    .centre {
+        position: absolute;
+        margin: auto;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+</style>
+
+<body>
+    <script type="text/javascript">
+        var player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('ytplayer', {
+                height: '500vh',
+                width: '888vh',
+                playerVars: {
+                    autoplay: 1,
+                    loop: 1,
+                    cc_load_policy: 1,
+                    controls: 0,
+                    showinfo: 0,
+                    playlist: 'sIlNIVXpIns'
+                },
+                videoId: 'sIlNIVXpIns',
+            });
+        }
+        console.log("This web server is running a GraphQL API server")
+    </script>
+    <div id="ytplayer" class="centre"></div>
+</body>
+
+</html>

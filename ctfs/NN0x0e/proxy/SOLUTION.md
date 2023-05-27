@@ -1,0 +1,1 @@
+This container is not a challenge itself, but it contains a SSRF vulnerability in its config that exposes interal containers (with no exposed ports) such as `filereader` through the `Host` header
