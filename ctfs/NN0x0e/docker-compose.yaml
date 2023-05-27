@@ -1,0 +1,31 @@
+version: "3.9"
+services:
+  ftp: # anon
+    build: ./sftp
+    ports:
+      - "5000:22"
+  ninja: # ninja
+    build: ./ninja
+    ports: 
+      - "5001:5004"
+  graph: # graf
+    build: ./graph
+    ports:
+      - "5002:4000"
+  filereader: # privileged
+    build: ./filereader
+  proxy:
+    build: ./proxy
+    ports:
+      - "5004:80"
+  reg: # regelate
+    build: ./reg
+    ports:
+      - "5005:8080"
+  cool: # meter
+    build: ./cool
+    ports:
+      - "5006:8080"
+  git: # gitter
+    build: ./git    ports:
+      - "5007:8080"

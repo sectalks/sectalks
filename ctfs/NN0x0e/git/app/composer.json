@@ -1,0 +1,5 @@
+{
+  "require": {
+    "czproject/git-php": "4.0.2"
+  }
+}
